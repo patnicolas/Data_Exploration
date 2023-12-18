@@ -154,6 +154,9 @@ def test_rn_vector():
 
     x, y = R2_r.symbols
     fx, fy = R2_r.base_scalars()
+    v = fx*R2_r.i + fy*R2_r.j
+    pprint(v)
+
     r_pt = R2_r.point([x, y])
     g = Function('g')
     s_field = g(fx, fy)
@@ -176,9 +179,10 @@ def test_rn_vector():
 
 
 if __name__ == '__main__':
+    test_rn_vector()
+    """
     wedge_product_r3()
     wedge_product_c()
-    """
     (x, y) = symbols('x y', real=True)
     (X, Y) = symbols('X Y', real=True)
     this_coord_sys = CoordDef((x, y), Matrix([sqrt(x**2 + y**2), atan2(x, y)]))

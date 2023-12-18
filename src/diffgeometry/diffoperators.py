@@ -32,7 +32,15 @@ class DiffOperator(object):
 
 if __name__ == '__main__':
     import sympy
-    from sympy import exp, sin
+    import math
+    from sympy import exp, sin, symbols, pprint
+
+    r = CoordSys3D('r')
+   # x, y, z = symbols('x, y, z', real=True)
+    v = (2*r.x + r.z**3)*r.i + (r.x*r.y+sympy.exp(-r.y)-r.z**2)*r.j + (r.x**3/r.y)*r.k
+    w = v.evalf(subs={r.x: 1.0, r.y: 2.0, r.z: 0.2})
+    print(w)
+    """
     x, k = sympy.var('x, k', real=True)
 
     diff_operator = DiffOperator(sympy.exp(-x**2))
@@ -66,3 +74,4 @@ if __name__ == '__main__':
     curl_res = diff_operator.curl(r.i + r.j + r.k)
     print(curl_res)
     print(diff_operator.divergence(curl_res))
+    """
