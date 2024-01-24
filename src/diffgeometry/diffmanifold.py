@@ -1,7 +1,7 @@
 
 from sympy.diffgeom import Manifold, Patch, CoordSystem, BaseScalarField
 from sympy import Lambda, symbols, Matrix, atan2, cos, sin, sqrt
-from typing import AnyStr, Optional, Callable, TypedDict, Tuple, List
+from typing import AnyStr, Optional, Callable, TypedDict, Tuple, List, Any
 from dataclasses import dataclass
 
 
@@ -15,6 +15,8 @@ class CoordModel:
     def get_lambda(self):
         return Lambda(self.in_symbols, self.transform)
 
+
+
 class DiffManifold(object):
     def __init__(self,
                  name: AnyStr,
@@ -25,24 +27,47 @@ class DiffManifold(object):
 
         self.manifold = Manifold(name, dimension)
         self.patch = Patch(patch, self.manifold)
-        _lambda = coord_sys.get_lambda()
-        inv_lambda = inv_coord_sys.get_lambda()
+        _lambda = coord_model.get_lambda()
+        inv_lambda = inv_coord_model.get_lambda()
 
-        self.relation = {
-            (coord_sys.coord_name, inv_coord_sys.coord_name): _lambda,
-            (inv_coord_sys.coord_name, coord_sys.coord_name): inv_lambda
+        self.relation: dict[tuple[AnyStr, AnyStr], Lambda] = {
+            (coord_model.name, inv_coord_model.name): _lambda,
+            (inv_coord_model.name, coord_model.name): inv_lambda
         }
 
+    def get_lambdas(self) -> List[AnyStr]:
+        return [str(rel[1].expr.args[2]) for rel in self.relation.items()]
+
+    def get_coord_names(self) -> (AnyStr, AnyStr):
+        return list(self.relation.keys())[0]
+
+    def __str__(self) -> AnyStr:
+        return "\n".join([f'{str(rel[0])}: {str(rel[1].expr.args[2])}' for rel in self.relation.items()])
+
     def get_coord_systems(self) -> (CoordSystem, CoordSystem):
-        coord_sys = CoordSystem(coord_name, self.patch, [x, y], this_relation)
+        coord_sys = CoordSystem(name, self.patch, [x, y], this_relation)
         inv_coord_sys = CoordSystem(inv_coord_name, self.patch, [X, Y], this_relation)
         return coord_sys, inv_coord_sys
 
+    def get_base_scalar_field(self,
+                              first_coord_system: bool,
+                              func: Callable[[[BaseScalarField]], BaseScalarField],
+                              var_symbols: tuple) -> Any:
+        coord_system_index = 0 if first_coord_system else 1
+        target_coord_system = CoordSystem(self.get_coord_names()[coord_system_index], self.patch)
+        first_field = BaseScalarField(target_coord_system, 0)
+        second_field = BaseScalarField(target_coord_system, 1)
+        target = target_coord_system.point(list(var_symbols))
+        return func([first_field, second_field]).rcall(target)
+
+
+    """
     def base_scalar_field(self,  coord_name: AnyStr, inv_coord_name: AnyStr) -> (CoordSystem, CoordSystem):
         this_relation = self.get_relation(coord_name, inv_coord_name)
         coord_sys = CoordSystem(coord_name, self.patch, [x, y], this_relation)
         inv_coord_sys = CoordSystem(inv_coord_name, self.patch, [X, Y], this_relation)
         return coord_sys, inv_coord_sys
+    """
 
 
 def wedge_product_c():
@@ -179,19 +204,29 @@ def test_rn_vector():
 
 
 if __name__ == '__main__':
-    test_rn_vector()
     """
+    test_rn_vector()
+    
     wedge_product_r3()
     wedge_product_c()
-    (x, y) = symbols('x y', real=True)
-    (X, Y) = symbols('X Y', real=True)
-    this_coord_sys = CoordDef((x, y), Matrix([sqrt(x**2 + y**2), atan2(x, y)]))
-    this_inv_coord_sys = CoordDef((X, Y), Matrix([X*cos(Y), X*sin(Y)]))
+       """
+    x, y = symbols('x y', real=True)
+    X, Y = symbols('X Y', real=True)
+    this_coord_sys = CoordModel('cartesian', (x, y), Matrix([sqrt(x**2 + y**2), atan2(x, y)]))
+    this_inv_coord_sys = CoordModel('polar', (X, Y), Matrix([X*cos(Y), X*sin(Y)]))
 
     diff_manifold = DiffManifold('M', 2, 'P', this_coord_sys, this_inv_coord_sys)
-    for relation in diff_manifold.get_relation('Cartesian', 'Polar').items():
-        print(relation)
+    print(diff_manifold.get_coord_names())
 
-    coord, inv_coord = diff_manifold.base_scalar_field('Cartesian', 'Polar')
-    """
+    coord_system_1, coord_system_2 = diff_manifold.get_coord_names()
+    print(str(coord_system_1))
+
+    def norm(base_scalar_fields: List[BaseScalarField]) -> BaseScalarField:
+        return base_scalar_fields[0]**2 + base_scalar_fields[1]**2
+
+    base_scalar_field = diff_manifold.get_base_scalar_field(True, norm, (2, 0))
+    print(base_scalar_field)
+
+#    coord, inv_coord = diff_manifold.base_scalar_field('Cartesian', 'Polar')
+
 

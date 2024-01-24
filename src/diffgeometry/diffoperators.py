@@ -31,6 +31,10 @@ class DiffOperator(object):
         return fourier_transform(self.expr, x, k)
 
 if __name__ == '__main__':
+    e = ['6']
+    e.extend('8')
+    print(e)
+
     import sympy
     import math
     from sympy import exp, sin, symbols, pprint
