@@ -1,3 +1,5 @@
+__author__ = "Patrick Nicolas"
+__copyright__ = "Copyright 2020, 2024  All rights reserved."
 
 from sympy.vector import CoordSys3D, VectorZero
 from sympy import Expr

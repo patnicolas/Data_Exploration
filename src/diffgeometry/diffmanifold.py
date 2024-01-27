@@ -1,3 +1,5 @@
+__author__ = "Patrick Nicolas"
+__copyright__ = "Copyright 2020, 2024  All rights reserved."
 
 from sympy.diffgeom import Manifold, Patch, CoordSystem, BaseScalarField
 from sympy import Lambda, symbols, Matrix, atan2, cos, sin, sqrt
@@ -44,8 +46,12 @@ class DiffManifold(object):
         return "\n".join([f'{str(rel[0])}: {str(rel[1].expr.args[2])}' for rel in self.relation.items()])
 
     def get_coord_systems(self) -> (CoordSystem, CoordSystem):
-        coord_sys = CoordSystem(name, self.patch, [x, y], this_relation)
-        inv_coord_sys = CoordSystem(inv_coord_name, self.patch, [X, Y], this_relation)
+        x, y = symbols('x y', real=True)
+        coord_name, inv_coord_name = self.get_coord_names()
+        coord_sys = CoordSystem(coord_name, self.patch, [x, y], self.relation)
+
+        X, Y = symbols('X Y', real=True)
+        inv_coord_sys = CoordSystem(inv_coord_name, self.patch, [X, Y], self.relation)
         return coord_sys, inv_coord_sys
 
     def get_base_scalar_field(self,
@@ -59,14 +65,15 @@ class DiffManifold(object):
         target = target_coord_system.point(list(var_symbols))
         return func([first_field, second_field]).rcall(target)
 
+    def get_base_vector_field(self, index: int):
+        coord
+        from sympy.diffgeom.rn import R2, R2_p, R2_r
+        from sympy.diffgeom import BaseVectorField
 
-    """
-    def base_scalar_field(self,  coord_name: AnyStr, inv_coord_name: AnyStr) -> (CoordSystem, CoordSystem):
-        this_relation = self.get_relation(coord_name, inv_coord_name)
-        coord_sys = CoordSystem(coord_name, self.patch, [x, y], this_relation)
-        inv_coord_sys = CoordSystem(inv_coord_name, self.patch, [X, Y], this_relation)
-        return coord_sys, inv_coord_sys
-    """
+
+    @staticmethod
+    def norm(base_scalar_fields: List[BaseScalarField]) -> BaseScalarField:
+        return sqrt(base_scalar_fields[0] ** 2 + base_scalar_fields[1] ** 2)
 
 
 def wedge_product_c():
@@ -220,10 +227,7 @@ if __name__ == '__main__':
     coord_system_1, coord_system_2 = diff_manifold.get_coord_names()
     print(str(coord_system_1))
 
-    def norm(base_scalar_fields: List[BaseScalarField]) -> BaseScalarField:
-        return base_scalar_fields[0]**2 + base_scalar_fields[1]**2
-
-    base_scalar_field = diff_manifold.get_base_scalar_field(True, norm, (2, 0))
+    base_scalar_field = diff_manifold.get_base_scalar_field(True, DiffManifold.norm, (2, 0))
     print(base_scalar_field)
 
 #    coord, inv_coord = diff_manifold.base_scalar_field('Cartesian', 'Polar')
