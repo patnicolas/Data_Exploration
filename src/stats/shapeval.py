@@ -21,13 +21,17 @@ class SHAPException(Exception):
     def __init__(self, comment: AnyStr):
         super(Exception, self).__init__(comment)
 
+
 def custom_masker(mask, x):
     # in this simple example we just zero out the features we are masking
     return (x * mask).reshape(1, len(x))
 
+
 """
     Enumerator for the type of SHAP output plot
 """
+
+
 class SHAPPlotType(Enum):
     SUMMARY_PLOT = 1,
     DEPENDENCY_PLOT = 2,
@@ -65,8 +69,8 @@ class SHAPEval(object):
                 data_point_rank = 8
                 shap.force_plot(
                     shap_descriptor.expected_value,
-                    shap_values[data_point_rank,:],
-                    validation_data[data_point_rank,:],
+                    shap_values[data_point_rank, :],
+                    validation_data[data_point_rank, :],
                     feature_names=column_names,
                     matplotlib=True)
 

@@ -16,7 +16,6 @@ class CoordModel:
         return Lambda(self.in_symbols, self.transform)
 
 
-
 class DiffManifold(object):
     def __init__(self,
                  name: AnyStr,

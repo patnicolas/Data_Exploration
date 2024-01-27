@@ -40,6 +40,8 @@ class TestMetric:
     :param label Label variable 
     :param val_train_split Fraction of data set split between validation and training sets
 """
+
+
 class ModelEval(object):
     random_state = 5713
 
@@ -48,7 +50,7 @@ class ModelEval(object):
                  dropped_features: List[AnyStr],
                  label: AnyStr,
                  val_train_split: float):
-        assert 0.0 < test_size < 0.5, f'Validation-train split ratio {val_train_split} should be [0.0, 0.50]'
+        assert 0.0 < val_train_split < 0.5, f'Validation-train split ratio {val_train_split} should be [0.0, 0.50]'
 
         def set_label(x: float) -> int:
             return int(x) - 1
@@ -99,6 +101,9 @@ class ModelEval(object):
             f1_score(self.y_val, y_predicted, average='weighted'),
             mean_squared_error(self.y_val, y_predicted)
         )
+
+    def __str__(self):
+        return f'Features: {self.feature_names}'
 
 
 if __name__ == '__main__':
