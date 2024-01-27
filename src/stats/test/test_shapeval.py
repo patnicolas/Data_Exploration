@@ -2,40 +2,29 @@ import unittest
 import path
 import sys
 import os
+from sklearn.linear_model import LogisticRegression
 
-
+directory = path.Path(__file__).abspath()
+sys.path.append(directory.parent.parent)
+print(sys.path)
+from shapeval import SHAPException, SHAPPlotType, SHAPEval
 
 
 class TestSHAPEval(unittest.TestCase):
-    directory = path.Path(__file__).abspath()
-    sys.path.append(directory.parent.parent)
-    print(sys.path)
-    from shapeval import SHAPEval
+
 
     def test_logistic_regression(self):
-        test_filename = '../../../data/Philippine_Air_Quality.csv'
-        test_drop_features = ['datetime', 'coord.lon', 'coord.lat', 'extraction_date_time', 'city_name']
-        test_label = 'main.aqi'
-        test_size = 0.15
-        model = LogisticRegression(solver='lbfgs', max_iter=10000, penalty='l2', multi_class='multinomial')
+        features_names = ['x1', 'x2']
+        X = [[0.5, 0.6], [0.6, 0.0], [0.1, 0.5], [0.3, 1.0], [0.9, 0.8], [0.2, 0.2], [0.1, 0.4], [0.1, 0.7]]
+
         try:
-            shap_eval = SHAPEval(model, )
-            test_metrics = shap_eval('logistic_regression')
+            model = LogisticRegression(solver='lbfgs', max_iter=1000, penalty='l2', multi_class='multinomial')
+            shap_eval = SHAPEval(model.predict, SHAPPlotType.SUMMARY_PLOT)
+            test_metrics = shap_eval(X, features_names)
             print(str(test_metrics))
         except Exception as e:
             print(str(e))
 
-    def test_svm(self):
-        test_filename = '../../../data/Philippine_Air_Quality.csv'
-        test_drop_features = ['datetime', 'coord.lon', 'coord.lat', 'extraction_date_time', 'city_name']
-        test_label = 'main.aqi'
-        test_size = 0.15
-        try:
-            shap_eval = SHAPEval(test_filename, test_drop_features, test_label, test_size)
-            test_metrics = shap_eval('svm')
-            print(str(test_metrics))
-        except Exception as e:
-            print(str(e))
 
 
 if __name__ == '__main__':

@@ -61,6 +61,7 @@ class ModelEval(object):
         X = df.drop(dropped_features, axis=1)
         # Apply standard normalization
         X_scaled = StandardScaler().fit(X).transform(X)
+        print(f'X_Scaled: {X_scaled}')
         # Select column containing label
         y = df[label].apply(set_label)
         # Train - validation split
@@ -88,7 +89,7 @@ class ModelEval(object):
                     solver='adam',
                     random_state=ModelEval.random_state)
             case _:
-                raise Exception(f'Model name {model_type} is not supported')
+                raise SHAPException(f'Model name {model_type} is not supported')
         print(f'{model_type} trained with {len(self.X_train)} validated with {len(self.X_val)} samples')
         model.fit(self.X_train, self.y_train)
 
