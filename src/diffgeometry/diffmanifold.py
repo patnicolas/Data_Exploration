@@ -66,7 +66,6 @@ class DiffManifold(object):
         return func([first_field, second_field]).rcall(target)
 
     def get_base_vector_field(self, index: int):
-        coord
         from sympy.diffgeom.rn import R2, R2_p, R2_r
         from sympy.diffgeom import BaseVectorField
 
