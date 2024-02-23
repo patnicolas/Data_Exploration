@@ -14,6 +14,12 @@ from modeleval import ModelEval
 
 class TestSHAPEval(unittest.TestCase):
 
+    def test_inv_matrix(self):
+        import numpy as np
+
+        m = np.array([[1.2, 2.0], [0.4, 0.8]])
+        inv = 1/m
+        print(inv)
 
     def test_logistic_regression(self):
         features_names = ['x1', 'x2']
