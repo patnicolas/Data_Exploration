@@ -28,7 +28,12 @@ def print_hi():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi()
+    values: list[int] = [2, -5, 8, -3, 7, 9, 9, 9, 8, 3, 8]
+    from collections import Counter
+    counter = Counter(values)  # {8: 3, 9: 3, 2: 1, -5: 1, -3: 1, 7: 1, 3: 1}
+    print(counter)
+
+
     """
     pt = torch.tensor([2.0, 4.0, 5.0, 6.0])
     print(pt.is_contiguous())   # True
