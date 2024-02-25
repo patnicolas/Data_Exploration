@@ -9,6 +9,7 @@ from hyperspherespace import HypersphereSpace
 from spacevisualization import VisualizationParams, SpaceVisualization
 import numpy as np
 
+
 class TestGeometricSpace(unittest.TestCase):
 
     def test_sample_hypersphere(self):

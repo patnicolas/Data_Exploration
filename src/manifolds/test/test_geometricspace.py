@@ -4,8 +4,8 @@ import sys
 import os
 directory = path.Path(__file__).abspath()
 sys.path.append(directory.parent.parent)
-import numpy as np
 
+import numpy as np
 from geometricspace import GeometricSpace
 
 
@@ -26,7 +26,6 @@ class TestGeometricSpace(unittest.TestCase):
     def test_sample(self):
         test_class = TestClass(3)
         print(test_class.sample(20))
-
 
 
 if __name__ == '__main__':
