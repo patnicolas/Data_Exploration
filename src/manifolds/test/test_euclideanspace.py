@@ -29,11 +29,20 @@ class TestEuclideanSpace(unittest.TestCase):
 
     def test_euclidean_average(self):
         dim = 2
-        num_samples = 100
+        num_samples = 20
         euclidean_space = EuclideanSpace(dim)
         data = euclidean_space.sample(num_samples)
         average_points = GeometricSpace.mean(data)
         print(f'Euclidean average:\n{str(average_points)}')
+
+    def test_euclidean_3d_visualization(self):
+        style = {'color': 'blue', 'linestyle': '--', 'label': '2'}
+        dim = 3
+        num_samples = 8
+        euclidean_space = EuclideanSpace(dim)
+        data = euclidean_space.sample(num_samples)
+        visualParams = VisualizationParams("Hypersphere 3D display", "locations", (8, 8), style, "3d")
+        EuclideanSpace.show(visualParams, data)
 
 
 if __name__ == '__main__':

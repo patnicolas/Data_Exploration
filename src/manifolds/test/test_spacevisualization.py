@@ -46,7 +46,6 @@ class TestSpaceVisualization(unittest.TestCase):
         fig.savefig("test.png")
         plt.show()
 
-
     @unittest.skip
     def test_plot_3d(self):
         data_points = np.array([[0.12201818, - 0.80014098,  0.44830868],

@@ -16,12 +16,21 @@ import geomstats.visualization as visualization
 from pydantic import BaseModel
 from dataclasses import dataclass
 
+"""
+kwargs = {
+    'color': 'yellow',
+    'linestyle': '--',
+    'label': '2',
+}
+
+"""
 
 @dataclass
 class VisualizationParams:
     label: AnyStr
     title: AnyStr
     fig_size: Tuple[float, float]
+    kwargs: dict[AnyStr, AnyStr] = None
     projection: AnyStr = None
 
 
@@ -32,6 +41,7 @@ class SpaceVisualization(object):
             else figure.add_subplot(111)
         self.label = vParams.label
         self.ax.set_title(vParams.title)
+        self.style = vParams.kwargs
 
     def scatter(self, data_points: np.array) -> NoReturn:
         self.ax.scatter(x=data_points[:, 0], y=data_points[:, 1], label=self.label)
@@ -43,10 +53,12 @@ class SpaceVisualization(object):
 
         if space is not None and space in GeometricSpace.supported_manifolds:
             visualization.plot(data_points, ax=self.ax, space=space, label=self.label, s=80)
+
         self.ax.plot(
             data_points[:, 0],
             data_points[:, 1],
             data_points[:, 2],
+            **self.style,
            # linestyle="dashed",
             alpha=0.5)
         # self.ax.legend()

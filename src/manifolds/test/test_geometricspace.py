@@ -21,7 +21,7 @@ class TestGeometricSpace(unittest.TestCase):
     def test_mean_geometric_space(self):
         test_class = TestClass(3)
         values: list[float] = [4.5, 1.4, 0.5, 3.5]
-        print(test_class.mean(np.array(values)))
+        print(f'Mean value: {test_class.mean(np.array(values))}')
 
     def test_sample(self):
         test_class = TestClass(3)

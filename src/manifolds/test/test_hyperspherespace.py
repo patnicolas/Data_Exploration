@@ -21,11 +21,12 @@ class TestGeometricSpace(unittest.TestCase):
 
     def test_hypersphere(self):
         dim = 2
-        num_samples = 20
+        num_samples = 8
+        style = {'color': 'red', 'linestyle': '--', 'label': 'Geodesics'}
         manifold = HypersphereSpace(dim)
         print(str(manifold))
         data = manifold.sample(num_samples)
-        visualParams = VisualizationParams("Hypersphere display", "locations", (8, 8), "3d")
+        visualParams = VisualizationParams("Hypersphere display", "locations", (8, 8), style, "3d")
         HypersphereSpace.show(visualParams, data)
 
 
