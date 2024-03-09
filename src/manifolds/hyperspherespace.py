@@ -10,12 +10,15 @@ from spacevisualization import VisualizationParams, SpaceVisualization
 from geometricspace import GeometricSpace
 
 
+"""
+Define the Hypersphere geometric space as a 2D manifold in a 3D Euclidean space
+"""
+
+
 class HypersphereSpace(GeometricSpace):
-    def __init__(self, dimension: int):
-        """
-        :param dimension Number of dimensions for the hypersphere
-        """
-        super(HypersphereSpace, self).__init__(dimension)
+    def __init__(self):
+        dim = 2
+        super(HypersphereSpace, self).__init__(dim)
         GeometricSpace.manifold_type = 'Hypersphere'
         self.space = Hypersphere(dim=self.dimension, equip=False)
 

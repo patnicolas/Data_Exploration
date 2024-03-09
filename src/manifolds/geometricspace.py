@@ -29,11 +29,11 @@ from abc import ABC
 class GeometricSpace(ABC):
     manifold_type: AnyStr
     supported_manifolds = [
-        "SO3_GROUP",
-        "SE3_GROUP",
-        "SE2_GROUP",
-        "S1",
-        "S2",
+        "SO3_GROUP",             # Lie 3D rotation group
+        "SE3_GROUP",             # 3D rotation and translation Euclidean group
+        "SE2_GROUP",             # 2D rotation and translation group
+        "S1",                    # Circle in 2D space
+        "S2",                    # Hypersphere in 3D Euclidean space
         "H2_poincare_disk",
         "H2_poincare_half_plane",
         "H2_klein_disk",
@@ -64,13 +64,17 @@ class GeometricSpace(ABC):
     def mean(samples: np.array, axis: int = 0) -> float:
         """
         :param samples Sample of data on a manifold
-        :param axis The axis the mean has to be computed
+        :param axis The index of axis (X=0, Y=1,...) used to compute the mean
         :return the mean value
         """
         return float(gs.sum(samples, axis)/len(samples))
 
     @staticmethod
     def is_manifold_supported(manifold_type: AnyStr) -> bool:
+        """
+        :param manifold_type Type of manifold
+        :return True if manifold is supported, False otherwise
+        """
         return manifold_type in supported_manifolds
 
 

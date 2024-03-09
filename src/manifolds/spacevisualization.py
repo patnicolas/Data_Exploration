@@ -17,13 +17,16 @@ from pydantic import BaseModel
 from dataclasses import dataclass
 
 """
+Example of Dictionary for plot style
 kwargs = {
     'color': 'yellow',
     'linestyle': '--',
     'label': '2',
+    'facecolor': 'blue'
 }
 
 """
+
 
 @dataclass
 class VisualizationParams:
@@ -37,6 +40,8 @@ class VisualizationParams:
 class SpaceVisualization(object):
     def __init__(self, vParams: VisualizationParams):
         figure = plt.figure(figsize=vParams.fig_size)
+        self.style = vParams.kwargs
+
         self.ax = figure.add_subplot(111, projection=vParams.projection) if vParams.projection is not None \
             else figure.add_subplot(111)
         self.label = vParams.label
@@ -51,19 +56,25 @@ class SpaceVisualization(object):
     def plot_3d(self, data_points: np.array, space: AnyStr = None) -> NoReturn:
         from geometricspace import GeometricSpace
 
-        if space is not None and space in GeometricSpace.supported_manifolds:
-            visualization.plot(data_points, ax=self.ax, space=space, label=self.label, s=80)
+        if space is not None:
+            if space == 'S2':
+                visualization.plot(data_points, ax=self.ax, space=space, label=self.label, s=80)
+            elif space == 'S32' or space == 'M32' or space == 'S33':
+                visualization.plot(data_points, ax=self.ax, space=space, label=self.label, s=5)
+            else:
+                raise Exception(f'Space {space} is not supported')
 
-        self.ax.plot(
-            data_points[:, 0],
-            data_points[:, 1],
-            data_points[:, 2],
-            **self.style,
-           # linestyle="dashed",
-            alpha=0.5)
-        # self.ax.legend()
+        if self.style is not None:
+            self.ax.plot(
+                data_points[:, 0],
+                data_points[:, 1],
+                data_points[:, 2],
+                **self.style,
+                alpha=0.5)
         self.ax.grid()
         self.ax.legend()
         plt.show()
+
+
 
 
