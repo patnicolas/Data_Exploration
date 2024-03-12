@@ -3,10 +3,20 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 import geomstats.backend as gs
 
-from typing import AnyStr
+from typing import AnyStr, List, Callable
+from dataclasses import dataclass
 import numpy as np
 import abc
 from abc import ABC
+
+
+
+@dataclass
+class ManifoldPoint:
+    data_point: np.array
+    vector: List[float]
+
+
 
 """
     Abstract class that defined the key components of a Geometric Space. It lists
@@ -76,6 +86,15 @@ class GeometricSpace(ABC):
         :return True if manifold is supported, False otherwise
         """
         return manifold_type in supported_manifolds
+
+    @staticmethod
+    def load_csv(filename: AnyStr) -> np.array:
+        return np.genfromtxt(filename, delimiter=',')
+
+
+
+
+
 
 
 

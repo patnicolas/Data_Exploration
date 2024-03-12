@@ -27,6 +27,11 @@ class TestGeometricSpace(unittest.TestCase):
         test_class = TestClass(3)
         print(test_class.sample(20))
 
+    def test_load_data(self):
+        filename = '../../../data/hypersphere_data_1.txt'
+        data = GeometricSpace.load_csv(filename)
+        print(f'Loaded Array:\n{data}')
+
 
 if __name__ == '__main__':
     unittest.main()

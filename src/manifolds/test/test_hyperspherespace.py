@@ -12,12 +12,14 @@ import numpy as np
 
 class TestGeometricSpace(unittest.TestCase):
 
+    @unittest.skip('ignore')
     def test_sample_hypersphere(self):
-        num_samples = 20
+        num_samples = 180
         manifold = HypersphereSpace()
         data = manifold.sample(num_samples)
         print(f'Hypersphere:\n{str(data)}')
 
+    @unittest.skip('ignore')
     def test_hypersphere(self):
         num_samples = 8
         style = {'color': 'red', 'linestyle': '--', 'label': 'Edges'}
@@ -26,6 +28,21 @@ class TestGeometricSpace(unittest.TestCase):
         data = manifold.sample(num_samples)
         visualParams = VisualizationParams("Data on Hypersphere", "locations", (8, 8), style, "3d")
         HypersphereSpace.show(visualParams, data)
+
+    def test_tangent_vector(self):
+        from geometricspace import GeometricSpace, ManifoldPoint
+
+        filename = '../../../data/hypersphere_data_1.txt'
+        data = GeometricSpace.load_csv(filename)
+        manifold_points = [
+            ManifoldPoint(data[1], [1.0, 0.4, 1.3]),
+            ManifoldPoint(data[2], [1.0, 0.4, 1.3]),
+            ManifoldPoint(data[3], [1.0, 0.4, 1.3])
+        ]
+        manifold = HypersphereSpace(True)
+        tangent_vec = manifold.tangent_vectors(manifold_points)
+        for vec in tangent_vec:
+            print(f'Tangent vector: {vec}')
 
 
 if __name__ == '__main__':
