@@ -56,7 +56,7 @@ class TestGeometricSpace(unittest.TestCase):
             ManifoldPoint(samples[0], [1.0, 0.4, 1.3]),
             ManifoldPoint(samples[1], [1.0, 0.4, 1.3])
         ]
-        manifold.show_manifolds(manifold_points, ManifoldDisplay.Geodesics)
+        manifold.show_manifold(manifold_points, ManifoldDisplay.Geodesics)
 
 
 if __name__ == '__main__':

@@ -3,13 +3,12 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 import geomstats.backend as gs
 
-from typing import AnyStr, List, Callable
+from typing import AnyStr, List, Callable, NoReturn
 from dataclasses import dataclass
 import numpy as np
 import abc
 from abc import ABC
 from enum import Enum
-
 
 """
     Enumerator for the type of information to be displayed on the Manifold
@@ -60,11 +59,11 @@ class ManifoldPoint:
 class GeometricSpace(ABC):
     manifold_type: AnyStr
     supported_manifolds = [
-        "SO3_GROUP",             # Lie 3D rotation group
-        "SE3_GROUP",             # 3D rotation and translation Euclidean group
-        "SE2_GROUP",             # 2D rotation and translation group
-        "S1",                    # Circle in 2D space
-        "S2",                    # Hypersphere in 3D Euclidean space
+        "SO3_GROUP",  # Lie 3D rotation group
+        "SE3_GROUP",  # 3D rotation and translation Euclidean group
+        "SE2_GROUP",  # 2D rotation and translation group
+        "S1",  # Circle in 2D space
+        "S2",  # Hypersphere in 3D Euclidean space
         "H2_poincare_disk",
         "H2_poincare_half_plane",
         "H2_klein_disk",
@@ -91,6 +90,41 @@ class GeometricSpace(ABC):
         """
         pass
 
+    @abc.abstractmethod
+    def tangent_vectors(self, manifold_points: List[ManifoldPoint]) -> List[np.array]:
+        """
+            Compute the tangent vectors for a set of manifold point as pair
+            (location, vector). The tangent vectors are computed by projection to the
+            tangent plane.
+            :param manifold_points List of pair (location, vector) on the manifold
+            :return List of tangent vector for each location
+        """
+        pass
+
+    @abc.abstractmethod
+    def geodesics(self,
+                  manifold_points: List[ManifoldPoint],
+                  tangent_vectors: List[np.array]) -> List[np.array]:
+        """
+            Compute the path (x,y,z) values for the geodesic
+            :param manifold_points  Set of manifold points as pair (location, vector)
+            :param tangent_vectors List of vectors associated with each location on the manifold
+            :return List of geodesics as Numpy array of coordinates
+        """
+        pass
+
+    @abc.abstractmethod
+    def show_manifold(self,
+                      manifold_points: List[ManifoldPoint],
+                      manifold_display: ManifoldDisplay) -> NoReturn:
+        """
+            Display the various components on a manifold such as data points, tangent vector,
+            end point (exp. map), Geodesics
+            :param manifold_points  Set of manifold points as pair (location, vector)
+            :param manifold_display Type of components to be displayed in 3D
+        """
+        pass
+
     @staticmethod
     def mean(samples: np.array, axis: int = 0) -> float:
         """
@@ -98,7 +132,7 @@ class GeometricSpace(ABC):
         :param axis The index of axis (X=0, Y=1,...) used to compute the mean
         :return the mean value
         """
-        return float(gs.sum(samples, axis)/len(samples))
+        return float(gs.sum(samples, axis) / len(samples))
 
     @staticmethod
     def is_manifold_supported(manifold_type: AnyStr) -> bool:
@@ -111,14 +145,3 @@ class GeometricSpace(ABC):
     @staticmethod
     def load_csv(filename: AnyStr) -> np.array:
         return np.genfromtxt(filename, delimiter=',')
-
-
-
-
-
-
-
-
-
-
-

@@ -39,7 +39,7 @@ class HypersphereSpace(GeometricSpace):
         """
         return self.space.random_uniform(num_samples)
 
-    def tangent_vectors(self, manifold_points: List[ManifoldPoint]):
+    def tangent_vectors(self, manifold_points: List[ManifoldPoint]) -> List[np.array]:
         """
             Compute the tangent vectors for a set of manifold point as pair
             (location, vector). The tangent vectors are computed by projection to the
@@ -66,12 +66,13 @@ class HypersphereSpace(GeometricSpace):
             Compute the path (x,y,z) values for the geodesic
             :param manifold_points  Set of manifold points as pair (location, vector)
             :param tangent_vectors List of vectors associated with each location on the manifold
+            :return List of geodesics as Numpy array of coordinates
         """
         return [self.__geodesic(point, tgt_vec) for point, tgt_vec in zip(manifold_points, tangent_vectors)]
 
     def show_manifold(self,
                       manifold_points: List[ManifoldPoint],
-                      manifold_display: ManifoldDisplay) -> NonReturn:
+                      manifold_display: ManifoldDisplay) -> NoReturn:
         """
             Display the various components on a manifold such as data points, tangent vector,
             end point (exp. map), Geodesics
