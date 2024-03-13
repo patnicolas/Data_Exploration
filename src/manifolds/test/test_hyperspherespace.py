@@ -29,6 +29,7 @@ class TestGeometricSpace(unittest.TestCase):
         visualParams = VisualizationParams("Data on Hypersphere", "locations", (8, 8), style, "3d")
         HypersphereSpace.show(visualParams, data)
 
+    @unittest.skip('ignore')
     def test_tangent_vector(self):
         from geometricspace import GeometricSpace, ManifoldPoint
 
@@ -41,8 +42,21 @@ class TestGeometricSpace(unittest.TestCase):
         ]
         manifold = HypersphereSpace(True)
         tangent_vec = manifold.tangent_vectors(manifold_points)
-        for vec in tangent_vec:
-            print(f'Tangent vector: {vec}')
+        for vec, end_point in tangent_vec:
+            print(f'Tangent vector: {vec} End point: {end_point}')
+
+    def test_show_tangent_vector(self):
+        from geometricspace import GeometricSpace, ManifoldPoint, ManifoldDisplay
+
+       # filename = '../../../data/hypersphere_data_1.txt'
+       # data = GeometricSpace.load_csv(filename)
+        manifold = HypersphereSpace(True)
+        samples = manifold.sample(4)
+        manifold_points = [
+            ManifoldPoint(samples[0], [1.0, 0.4, 1.3]),
+            ManifoldPoint(samples[1], [1.0, 0.4, 1.3])
+        ]
+        manifold.show_manifolds(manifold_points, ManifoldDisplay.Geodesics)
 
 
 if __name__ == '__main__':

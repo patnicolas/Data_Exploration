@@ -4,17 +4,18 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 import matplotlib
 import matplotlib.colors as clrs
 import matplotlib.image as mpg
-import matplotlib.patches as mptch
+import matplotlib.patches as patch
 import matplotlib.pyplot as plt
 import geomstats.backend as gs
 
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-from typing import Tuple, NoReturn, AnyStr
+from typing import Tuple, NoReturn, AnyStr, List
 import numpy as np
 import geomstats.visualization as visualization
 from pydantic import BaseModel
 from dataclasses import dataclass
+from geometricspace import ManifoldPoint
 
 """
 Example of Dictionary for plot style
@@ -74,6 +75,27 @@ class SpaceVisualization(object):
         self.ax.grid()
         self.ax.legend()
         plt.show()
+
+    @staticmethod
+    def plot_tangent_geodesic(manifold_points: List[ManifoldPoint], space: AnyStr) -> NoReturn:
+        if space == 'S2':
+            from hyperspherespace import HypersphereSpace
+
+            fig = plt.figure(figsize=(10, 10))
+            ax = fig.add_subplot(111, projection="3d")
+
+            start_point = manifold_points[0]
+            manifold = HypersphereSpace(True)
+            tangent_vec_end_points = manifold.tangent_vectors([start_point])
+            tgt_vec, end_pt = tangent_vec_end_points[0]
+            ax = visualization.plot(start_point.data_point, ax=ax, space="S2", s=100 , alpha=0.8, label="Start")
+            ax = visualization.plot(end_pt, ax=ax, space="S2", s=100, alpha=0.8, label="End point")
+            arrow = visualization.Arrow3D(start_point, vector=tgt_vec)
+            arrow.draw(ax, color="red")
+            ax.legend()
+            plt.show()
+        else:
+            raise Exception(f'Space {space} is not supported')
 
 
 

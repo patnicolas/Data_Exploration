@@ -8,14 +8,35 @@ from dataclasses import dataclass
 import numpy as np
 import abc
 from abc import ABC
+from enum import Enum
 
+
+"""
+    Enumerator for the type of information to be displayed on the Manifold
+    DataOnly: Display on the data points 
+    TangentVector: Display the data points, the exponential map and the tangent vector
+    Geodesics: Display the data points, the exponential map, the tangent vector and geodesic
+"""
+
+
+class ManifoldDisplay(Enum):
+    DataOnly = 1
+    TangentVector = 2
+    Geodesics = 3
+
+
+"""
+    Data class for defining a Manifold point as a pair of data point on the manifold and 
+    a vector.
+    data_point: Point on the manifold
+    vector: Vector references
+"""
 
 
 @dataclass
 class ManifoldPoint:
     data_point: np.array
     vector: List[float]
-
 
 
 """
