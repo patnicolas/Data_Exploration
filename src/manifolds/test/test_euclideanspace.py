@@ -27,12 +27,12 @@ class TestEuclideanSpace(unittest.TestCase):
         data = euclidean_space.sample(num_samples)
         print(f'Euclidean:\n{str(data)}')
 
-    def test_euclidean_average(self):
+    def test_euclidean_mean(self):
         dim = 2
         num_samples = 20
         euclidean_space = EuclideanSpace(dim)
         data = euclidean_space.sample(num_samples)
-        average_points = GeometricSpace.mean(data)
+        average_points = GeometricSpace.euclidean_mean(data)
         print(f'Euclidean average:\n{str(average_points)}')
 
     def test_euclidean_3d_visualization(self):

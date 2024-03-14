@@ -10,32 +10,23 @@ import abc
 from abc import ABC
 from enum import Enum
 
-"""
-    Enumerator for the type of information to be displayed on the Manifold
-    DataOnly: Display on the data points 
-    TangentVector: Display the data points, the exponential map and the tangent vector
-    Geodesics: Display the data points, the exponential map, the tangent vector and geodesic
-"""
-
-
-class ManifoldDisplay(Enum):
-    DataOnly = 1
-    TangentVector = 2
-    Geodesics = 3
-
 
 """
     Data class for defining a Manifold point as a pair of data point on the manifold and 
     a vector.
-    data_point: Point on the manifold
-    vector: Vector references
+    :param id: Identifier for the point on a manifold
+    :param data_point: Point on the manifold
+    :param tgt_vector: Optional reference Tangent vector
+    :param geodesic: Enable computation and display of geodesic if True, none otherwise
 """
 
 
 @dataclass
 class ManifoldPoint:
-    data_point: np.array
-    vector: List[float]
+    id: AnyStr
+    location: np.array
+    tgt_vector: List[float] = None
+    geodesic: bool = False
 
 
 """
@@ -82,9 +73,13 @@ class GeometricSpace(ABC):
         return f'{GeometricSpace.manifold_type} with dimension: {self.dimension}'
 
     @abc.abstractmethod
+    def belongs(self, point: List[float]) -> bool:
+        pass
+
+    @abc.abstractmethod
     def sample(self, num_samples: int) -> np.array:
         """
-        Generate random data on this manifold
+        Generate random data on the frechet mean for data on the manifold
         :param num_samples Number of sample data points on the manifold
         :return Numpy array of random data points
         """
@@ -93,11 +88,11 @@ class GeometricSpace(ABC):
     @abc.abstractmethod
     def tangent_vectors(self, manifold_points: List[ManifoldPoint]) -> List[np.array]:
         """
-            Compute the tangent vectors for a set of manifold point as pair
-            (location, vector). The tangent vectors are computed by projection to the
-            tangent plane.
-            :param manifold_points List of pair (location, vector) on the manifold
-            :return List of tangent vector for each location
+        Signature of the method to compute the tangent vectors for a set of manifold point as pair
+        (location, vector). The tangent vectors are computed by projection to the
+        tangent plane.
+        :param manifold_points List of pair (location, vector) on the manifold
+        :return List of tangent vector for each location
         """
         pass
 
@@ -106,37 +101,45 @@ class GeometricSpace(ABC):
                   manifold_points: List[ManifoldPoint],
                   tangent_vectors: List[np.array]) -> List[np.array]:
         """
-            Compute the path (x,y,z) values for the geodesic
-            :param manifold_points  Set of manifold points as pair (location, vector)
-            :param tangent_vectors List of vectors associated with each location on the manifold
-            :return List of geodesics as Numpy array of coordinates
+        Signature of the method to compute the path (x,y,z) values for the geodesic
+        :param manifold_points  Set of manifold points as pair (location, vector)
+        :param tangent_vectors List of vectors associated with each location on the manifold
+        :return List of geodesics as Numpy array of coordinates
         """
         pass
 
     @abc.abstractmethod
-    def show_manifold(self,
-                      manifold_points: List[ManifoldPoint],
-                      manifold_display: ManifoldDisplay) -> NoReturn:
+    def show_manifold(self, manifold_points: List[ManifoldPoint]) -> NoReturn:
         """
-            Display the various components on a manifold such as data points, tangent vector,
-            end point (exp. map), Geodesics
-            :param manifold_points  Set of manifold points as pair (location, vector)
-            :param manifold_display Type of components to be displayed in 3D
+        Signature of the method to display the various components on a manifold such as data points,
+        tangent vector, end point (exp. map), Geodesics
+        :param manifold_points  Set of manifold points as pair (location, vector)
+        """
+        pass
+
+    @abc.abstractmethod
+    def frechet_mean(self, points: np.array) -> np.array:
+        """
+        Signature of the method to compute the mean of multiple points on a manifold
+        :param points Data points on a manifold
+        :return mean value as a Numpy array
         """
         pass
 
     @staticmethod
-    def mean(samples: np.array, axis: int = 0) -> float:
+    def euclidean_mean(samples: np.array, axis: int = 0) -> np.array:
         """
+        Compute the Euclidean mean
         :param samples Sample of data on a manifold
         :param axis The index of axis (X=0, Y=1,...) used to compute the mean
         :return the mean value
         """
-        return float(gs.sum(samples, axis) / len(samples))
+        return gs.sum(samples, axis) / len(samples)
 
     @staticmethod
     def is_manifold_supported(manifold_type: AnyStr) -> bool:
         """
+        Test if this manifold is supported by sub classes
         :param manifold_type Type of manifold
         :return True if manifold is supported, False otherwise
         """
