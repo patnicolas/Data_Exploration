@@ -118,23 +118,22 @@ class GeometricSpace(ABC):
         pass
 
     @abc.abstractmethod
-    def frechet_mean(self, points: np.array) -> np.array:
+    def frechet_mean(self, manifold_points: List[ManifoldPoint]) -> np.array:
         """
         Signature of the method to compute the mean of multiple points on a manifold
-        :param points Data points on a manifold
+        :param manifold_points Data points on a manifold with optional tangent vectors and geodesic
         :return mean value as a Numpy array
         """
         pass
 
     @staticmethod
-    def euclidean_mean(samples: np.array, axis: int = 0) -> np.array:
+    def euclidean_mean(manifold_points: List[ManifoldPoint]) -> np.array:
         """
-        Compute the Euclidean mean
-        :param samples Sample of data on a manifold
-        :param axis The index of axis (X=0, Y=1,...) used to compute the mean
-        :return the mean value
+        Compute the Euclidean mean for a set of data point on a manifold
+        :param manifold_points List of manifold data points
+        :return the mean value as a np vector
         """
-        return gs.sum(samples, axis) / len(samples)
+        return np.mean([manifold_pt.location for manifold_pt in manifold_points], axis=0)
 
     @staticmethod
     def is_manifold_supported(manifold_type: AnyStr) -> bool:

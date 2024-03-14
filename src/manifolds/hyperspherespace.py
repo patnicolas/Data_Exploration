@@ -41,17 +41,18 @@ class HypersphereSpace(GeometricSpace):
         """
         return self.space.belongs(point)
 
-    def frechet_mean(self, points: np.array) -> np.array:
+    def frechet_mean(self, manifold_points: List[ManifoldPoint]) -> np.array:
         """
         Compute the mean of multiple points on a manifold
-        :param points Data points on a manifold
+        :param manifold_points Data points on a manifold with optional tangent vector and geodesic
         :return mean value as a Numpy array
         """
         from geomstats.learning.frechet_mean import FrechetMean
 
         frechet_mean = FrechetMean(self.space)
-        frechet_mean.fit(points)
+        frechet_mean.fit([manifold_pt.location for manifold_pt in manifold_points)
         return frechet_mean.estimate_
+
 
     def sample(self, num_samples: int) -> np.array:
         """

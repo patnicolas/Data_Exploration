@@ -46,6 +46,7 @@ class TestGeometricSpace(unittest.TestCase):
             print(f'Tangent vector: {vec} End point: {end_point}')
 
 
+    @unittest.skip('ignore')
     def test_show_tangent_vector(self):
         from geometricspace import GeometricSpace, ManifoldPoint
 
@@ -62,8 +63,21 @@ class TestGeometricSpace(unittest.TestCase):
         ]
         manifold.show_manifold(manifold_points)
 
+    def test_euclidean_mean(self):
+        from geometricspace import ManifoldPoint
+        manifold = HypersphereSpace(True)
+        samples = manifold.sample(3)
+        manifold_points = [
+            ManifoldPoint(
+                id=f'data{index}',
+                location=sample) for index, sample in enumerate(samples)
+        ]
+        mean = manifold.euclidean_mean(manifold_points)
+        print(mean)
+
+
     @unittest.skip('ignore')
-    def test_mean(self):
+    def test_frechet_mean(self):
         from geometricspace import GeometricSpace, ManifoldPoint
 
         manifold = HypersphereSpace(True)
