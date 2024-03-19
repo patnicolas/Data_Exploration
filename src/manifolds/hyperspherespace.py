@@ -41,18 +41,19 @@ class HypersphereSpace(GeometricSpace):
         """
         return self.space.belongs(point)
 
-    def frechet_mean(self, manifold_points: List[ManifoldPoint]) -> np.array:
+    def frechet_mean(self, manifold_pt1: ManifoldPoint, manifold_pt2: ManifoldPoint) -> np.array:
         """
         Compute the mean of multiple points on a manifold
-        :param manifold_points Data points on a manifold with optional tangent vector and geodesic
+        :param manifold_pt1 First data point on a manifold with optional tangent vector and geodesic
+        :param manifold_pt2 Second data point on a manifold with optional tangent vector and geodesic
         :return mean value as a Numpy array
         """
         from geomstats.learning.frechet_mean import FrechetMean
 
         frechet_mean = FrechetMean(self.space)
-        frechet_mean.fit([manifold_pt.location for manifold_pt in manifold_points)
+        x = np.stack((manifold_pt1.location, manifold_pt2.location), axis=0)
+        frechet_mean.fit(x)
         return frechet_mean.estimate_
-
 
     def sample(self, num_samples: int) -> np.array:
         """
@@ -84,11 +85,14 @@ class HypersphereSpace(GeometricSpace):
         return [self.__geodesic(point, tgt_vec)
                 for point, tgt_vec in zip(manifold_points, tangent_vectors) if point.geodesic]
 
-    def show_manifold(self, manifold_points: List[ManifoldPoint]) -> NoReturn:
+    def show_manifold(self,
+                      manifold_points: List[ManifoldPoint],
+                      euclidean_points: List[np.array] = None) -> NoReturn:
         """
         Display the various components on a manifold such as data points, tangent vector,
         end point (exp. map), Geodesics
-        :param manifold_points  Set of manifold points as pair (location, vector)
+        :param manifold_points  Set of manifold points as pair (id, location, tangent vector)
+        :param euclidean_points Set of points in the Euclidean space
         """
         import matplotlib.pyplot as plt
 
@@ -109,7 +113,7 @@ class HypersphereSpace(GeometricSpace):
             if manifold_pt.tgt_vector is not None:
                 tgt_vec, end_pt = self.__tangent_vector(manifold_pt)
                 # Show the end point
-                ax = visualization.plot(end_pt, ax=ax, space="S2", s=100, alpha=0.8, label=f'End {manifold_pt.id}')
+                # ax = visualization.plot(end_pt, ax=ax, space="S2", s=100, alpha=0.8, label=f'End {manifold_pt.id}')
                 arrow = visualization.Arrow3D(manifold_pt.location, vector=tgt_vec)
                 arrow.draw(ax, color="red")
 
@@ -126,6 +130,16 @@ class HypersphereSpace(GeometricSpace):
                         color="blue",
                         label=f'Geodesic {manifold_pt.id}')
 
+        if euclidean_points is not None:
+            for index, euclidean_pt in enumerate(euclidean_points):
+                ax.plot(
+                    euclidean_pt[0],
+                    euclidean_pt[1],
+                    euclidean_pt[2],
+                    **{'label': f'Euclidean mean', 'color': 'black'},
+                    alpha=0.5)
+
+        ax.grid()
         ax.legend()
         plt.show()
 
