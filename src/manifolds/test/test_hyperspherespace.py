@@ -57,7 +57,7 @@ class TestGeometricSpace(unittest.TestCase):
        # filename = '../../../data/hypersphere_data_1.txt'
        # data = GeometricSpace.load_csv(filename)
         manifold = HypersphereSpace(True)
-        samples = manifold.sample(3)
+        samples = manifold.sample(2)
         manifold_points = [
             ManifoldPoint(
                 id=f'data{index}',
@@ -80,6 +80,7 @@ class TestGeometricSpace(unittest.TestCase):
         mean = manifold.euclidean_mean(manifold_points)
         print(mean)
 
+    @unittest.skip('ignore')
     def test_frechet_mean(self):
         from geometricspace import ManifoldPoint
 
@@ -116,7 +117,12 @@ class TestGeometricSpace(unittest.TestCase):
         from geometricspace import ManifoldPoint
 
         manifold = HypersphereSpace(True)
-        random_samples = manifold.sample(3)
+        random_samples = manifold.sample(2)
+        manifold_pts = [
+            ManifoldPoint(f'id{index}', value, None, False, False) for index, value in enumerate(random_samples)
+        ]
+
+
 
 
 

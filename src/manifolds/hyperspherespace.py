@@ -11,7 +11,6 @@ from geometricspace import GeometricSpace, ManifoldPoint
 from dataclasses import dataclass
 import geomstats.backend as gs
 
-
 """
     Define the Hypersphere geometric space as a 2D manifold in a 3D Euclidean space.
     The key functions are:
@@ -20,7 +19,8 @@ import geomstats.backend as gs
                      location on the hypersphere
     show: Display the hypersphere and related components in 3D
     
-    :param equip Specified that the Hypersphere instance has to be equiped
+    :param equip Specified that the Hypersphere instance has to be equipped, False as default
+    :param intrinsic Flag to specify the coordinated as intrinsic with default as extrinsic coordinates
 """
 
 
@@ -30,7 +30,9 @@ class HypersphereSpace(GeometricSpace):
         super(HypersphereSpace, self).__init__(dim, intrinsic)
         GeometricSpace.manifold_type = 'Hypersphere'
         coordinates_type = 'intrinsic' if intrinsic else 'extrinsic'
+        # 1. Instantiate the Hypersphere
         self.space = Hypersphere(dim=self.dimension, equip=equip, default_coords_type=coordinates_type)
+        # 2. Generated the default metric
         self.hypersphere_metric = HypersphereMetric(self.space)
 
     def belongs(self, point: List[float]) -> bool:
@@ -44,7 +46,7 @@ class HypersphereSpace(GeometricSpace):
 
     def frechet_mean(self, manifold_pt1: ManifoldPoint, manifold_pt2: ManifoldPoint) -> np.array:
         """
-        Compute the mean of multiple points on a manifold
+        Compute the mean of between two points on manifold.
         :param manifold_pt1 First data point on a manifold with optional tangent vector and geodesic
         :param manifold_pt2 Second data point on a manifold with optional tangent vector and geodesic
         :return mean value as a Numpy array
@@ -86,9 +88,21 @@ class HypersphereSpace(GeometricSpace):
         return [self.__geodesic(point, tgt_vec)
                 for point, tgt_vec in zip(manifold_points, tangent_vectors) if point.geodesic]
 
-    def extrinsic_to_intrinsic(self, euclidean_points: List[np.array]) -> List[ManifoldPoint]:
-        intrinsic_coords = [space.extrinsic_to_intrinsic_coords(euclidean_pt) for euclidean_pt in euclidean_points]
-        return [ManifoldPoint(id=f'Data-{index}', location=coord) for coord in intrinsic_coords]
+    def extrinsic_to_intrinsic(self, manifold_pts: List[ManifoldPoint]) -> List[ManifoldPoint]:
+        return [ManifoldPoint(
+            id=pt.id,
+            location=pt.to_intrinsic(self.space),
+            tgt_space=pt.tgt_space,
+            geodesic=pt.geodesic,
+            intrinsic=True) for pt in manifold_pts]
+
+    def intrinsic_to_extrinsic(self, manifold_pts: List[ManifoldPoint]) -> List[ManifoldPoint]:
+        return [ManifoldPoint(
+            id=pt.id,
+            location=pt.to_intrinsic(self.space),
+            tgt_space=pt.tgt_space,
+            geodesic=pt.geodesic,
+            intrinsic=False) for pt in manifold_pts]
 
     def show_manifold(self,
                       manifold_points: List[ManifoldPoint],
@@ -149,11 +163,12 @@ class HypersphereSpace(GeometricSpace):
         plt.show()
 
         # ------------------  Helper methods  -------------------
+
     def __geodesic(self, manifold_point: ManifoldPoint, tangent_vec: np.array) -> np.array:
         return self.hypersphere_metric.geodesic(
-               initial_point=manifold_point.location,
-               initial_tangent_vec=tangent_vec
-           )
+            initial_point=manifold_point.location,
+            initial_tangent_vec=tangent_vec
+        )
 
     def __tangent_vector(self, point: ManifoldPoint) -> (np.array, np.array):
         import geomstats.backend as gs
@@ -172,4 +187,3 @@ class HypersphereSpace(GeometricSpace):
         """
         space_visualization = SpaceVisualization(vParams)
         space_visualization.plot_3d(locations, "S2")
-
