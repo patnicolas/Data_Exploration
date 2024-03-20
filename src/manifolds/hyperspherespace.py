@@ -25,11 +25,12 @@ import geomstats.backend as gs
 
 
 class HypersphereSpace(GeometricSpace):
-    def __init__(self, equip: bool = False):
+    def __init__(self, equip: bool = False, intrinsic: bool = False):
         dim = 2
-        super(HypersphereSpace, self).__init__(dim)
+        super(HypersphereSpace, self).__init__(dim, intrinsic)
         GeometricSpace.manifold_type = 'Hypersphere'
-        self.space = Hypersphere(dim=self.dimension, equip=equip)
+        coordinates_type = 'intrinsic' if intrinsic else 'extrinsic'
+        self.space = Hypersphere(dim=self.dimension, equip=equip, default_coords_type=coordinates_type)
         self.hypersphere_metric = HypersphereMetric(self.space)
 
     def belongs(self, point: List[float]) -> bool:
@@ -84,6 +85,10 @@ class HypersphereSpace(GeometricSpace):
         """
         return [self.__geodesic(point, tgt_vec)
                 for point, tgt_vec in zip(manifold_points, tangent_vectors) if point.geodesic]
+
+    def extrinsic_to_intrinsic(self, euclidean_points: List[np.array]) -> List[ManifoldPoint]:
+        intrinsic_coords = [space.extrinsic_to_intrinsic_coords(euclidean_pt) for euclidean_pt in euclidean_points]
+        return [ManifoldPoint(id=f'Data-{index}', location=coord) for coord in intrinsic_coords]
 
     def show_manifold(self,
                       manifold_points: List[ManifoldPoint],

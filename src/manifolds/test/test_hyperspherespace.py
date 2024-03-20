@@ -81,7 +81,7 @@ class TestGeometricSpace(unittest.TestCase):
         print(mean)
 
     def test_frechet_mean(self):
-        from geometricspace import GeometricSpace, ManifoldPoint
+        from geometricspace import ManifoldPoint
 
         manifold = HypersphereSpace(True)
         samples = manifold.sample(2)
@@ -111,6 +111,14 @@ class TestGeometricSpace(unittest.TestCase):
             geodesic=False)
         manifold_points.append(frechet_pt)
         manifold.show_manifold(manifold_points, [euclidean_mean])
+
+    def test_extrinsic_to_intrinsic(self):
+        from geometricspace import ManifoldPoint
+
+        manifold = HypersphereSpace(True)
+        random_samples = manifold.sample(3)
+
+
 
 
 if __name__ == '__main__':

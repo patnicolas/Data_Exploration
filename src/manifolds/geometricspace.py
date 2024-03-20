@@ -66,8 +66,9 @@ class GeometricSpace(ABC):
         "SPD2",
     ]
 
-    def __init__(self, dimension: int):
+    def __init__(self, dimension: int, intrinsic: bool = False):
         self.dimension = dimension
+        self.intrinsic = intrinsic
 
     def __str__(self) -> AnyStr:
         return f'{GeometricSpace.manifold_type} with dimension: {self.dimension}'
