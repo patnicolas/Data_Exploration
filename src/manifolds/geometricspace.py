@@ -4,6 +4,7 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 import geomstats.backend as gs
 from geomstats.geometry.base import LevelSet
 
+from manifoldpoint import ManifoldPoint
 from typing import AnyStr, List, Callable, NoReturn
 from dataclasses import dataclass
 import numpy as np
@@ -11,31 +12,6 @@ import abc
 from abc import ABC
 from enum import Enum
 
-
-"""
-    Data class for defining a Manifold point as a pair of data point on the manifold and 
-    a vector.
-    :param id: Identifier for the point on a manifold
-    :param data_point: Point on the manifold
-    :param tgt_vector: Optional reference Tangent vector
-    :param geodesic: Enable computation and display of geodesic if True, none otherwise
-    :param intrinsic: Flag if the coordinate for this Manifold point is intrinsic
-"""
-
-
-@dataclass
-class ManifoldPoint:
-    id: AnyStr
-    location: np.array
-    tgt_vector: List[float] = None
-    geodesic: bool = False
-    intrinsic: bool = False
-
-    def to_intrinsic(self, space: LevelSet) -> np.array:
-        return space.extrinsic_to_intrinsic_coords(self.location) if not self.intrinsic else self.location
-
-    def to_extrinsic(self, space: LevelSet) -> np.array:
-        return space.intrinsic_to_extrinsic_coords(self.location) if self.intrinsic else self.location
 
 
 """
@@ -148,7 +124,7 @@ class GeometricSpace(ABC):
     @staticmethod
     def is_manifold_supported(manifold_type: AnyStr) -> bool:
         """
-        Test if this manifold is supported by sub classes
+        Test if this manifold is supported by one of the sub-classe
         :param manifold_type Type of manifold
         :return True if manifold is supported, False otherwise
         """

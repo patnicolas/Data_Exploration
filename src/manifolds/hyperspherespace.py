@@ -10,6 +10,7 @@ from spacevisualization import VisualizationParams, SpaceVisualization
 from geometricspace import GeometricSpace, ManifoldPoint
 from dataclasses import dataclass
 import geomstats.backend as gs
+from geometricexception import GeometricException
 
 """
     Define the Hypersphere geometric space as a 2D manifold in a 3D Euclidean space.
@@ -35,7 +36,8 @@ class HypersphereSpace(GeometricSpace):
         # 2. Generated the default metric
         self.hypersphere_metric = HypersphereMetric(self.space)
 
-    def belongs(self, point: List[float]) -> bool:
+    def belongs(self, manifold_pt: ManifoldPoint) -> bool:
+        point = manifold_pt.location
         assert len(point) == 3, f'Point {point} should have 3 dimension'
         """
         Test if a point belongs to this hypersphere
@@ -89,18 +91,52 @@ class HypersphereSpace(GeometricSpace):
                 for point, tgt_vec in zip(manifold_points, tangent_vectors) if point.geodesic]
 
     def extrinsic_to_intrinsic(self, manifold_pts: List[ManifoldPoint]) -> List[ManifoldPoint]:
+        """
+        Convert the extrinsic coordinates of a list of manifold points into intrinsic coordinates
+        :param manifold_pts List of manifold which coordinates/location has to be converted
+        :return manifold points which location is defined as intrinsic coordinates
+        """
         return [ManifoldPoint(
             id=pt.id,
             location=pt.to_intrinsic(self.space),
-            tgt_space=pt.tgt_space,
+            tgt_vector=pt.tgt_vector,
             geodesic=pt.geodesic,
             intrinsic=True) for pt in manifold_pts]
 
     def intrinsic_to_extrinsic(self, manifold_pts: List[ManifoldPoint]) -> List[ManifoldPoint]:
+        """
+        Convert the intrinsic coordinates of a list of manifold points into extrinsic coordinates
+        :param manifold_pts List of manifold which coordinates/location has to be converted
+        :return manifold points which location is defined as extrinsic coordinates
+        """
         return [ManifoldPoint(
             id=pt.id,
-            location=pt.to_intrinsic(self.space),
-            tgt_space=pt.tgt_space,
+            location=pt.to_extrinsic(self.space),
+            tgt_vector=pt.tgt_vector,
+            geodesic=pt.geodesic,
+            intrinsic=False) for pt in manifold_pts]
+
+    def extrinsic_to_spherical(self, manifold_pts: List[ManifoldPoint]) -> List[ManifoldPoint]:
+        return [ManifoldPoint(
+            id=pt.id,
+            location=self.space.extrinsic_to_spherical(pt.location),
+            tgt_vector=pt.tgt_vector,
+            geodesic=pt.geodesic,
+            intrinsic=False) for pt in manifold_pts]
+
+    def spherical_to_extrinsic(self, manifold_pts: List[ManifoldPoint]) -> List[ManifoldPoint]:
+        return [ManifoldPoint(
+            id=pt.id,
+            location=self.space.spherical_to_extrinsic(pt.location),
+            tgt_vector=pt.tgt_vector,
+            geodesic=pt.geodesic,
+            intrinsic=False) for pt in manifold_pts]
+
+    def extrinsic_to_intrinsic_polar(self, manifold_pts: List[ManifoldPoint]) -> List[ManifoldPoint]:
+        return [ManifoldPoint(
+            id=pt.id,
+            location=self.__extrinsic_to_polar(pt.location),
+            tgt_vector=pt.tgt_vector,
             geodesic=pt.geodesic,
             intrinsic=False) for pt in manifold_pts]
 
@@ -163,6 +199,22 @@ class HypersphereSpace(GeometricSpace):
         plt.show()
 
         # ------------------  Helper methods  -------------------
+    @staticmethod
+    def __cartesian_to_polar(c_coordinates: np.array) -> np.array:
+        import math
+        if len(c_coordinates) != 2:
+            raise GeometricException(f'Number of coordinates {len(c_coordinates)} should be 2')
+
+        x = c_coordinates[0]
+        y = c_coordinates[1]
+        if x == 0.0 and y == 0.0:
+            raise GeometricException(f'x {x} and y {y} should not be 0')
+        r = math.sqrt(x ** 2 + y ** 2)
+        theta = math.acos(x/r) if y >= 0.0 else -math.acos(x/r)
+        return np.array([r, theta])
+
+    def __extrinsic_to_polar(self, c_coordinates: np.array) -> np.array:
+        return HypersphereSpace.__cartesian_to_polar(self.extrinsic_to_intrinsic(c_coordinates))
 
     def __geodesic(self, manifold_point: ManifoldPoint, tangent_vec: np.array) -> np.array:
         return self.hypersphere_metric.geodesic(

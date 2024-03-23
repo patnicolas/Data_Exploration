@@ -4,8 +4,10 @@ import sys
 import os
 directory = path.Path(__file__).abspath()
 sys.path.append(directory.parent.parent)
+sys.path.append(directory.parent)
 
 from hyperspherespace import HypersphereSpace
+from manifoldpoint import ManifoldPoint
 from spacevisualization import VisualizationParams, SpaceVisualization
 import numpy as np
 
@@ -31,7 +33,7 @@ class TestGeometricSpace(unittest.TestCase):
 
     @unittest.skip('ignore')
     def test_tangent_vector(self):
-        from geometricspace import GeometricSpace, ManifoldPoint
+        from geometricspace import GeometricSpace
 
         filename = '../../../data/hypersphere_data_1.txt'
         data = GeometricSpace.load_csv(filename)
@@ -52,10 +54,8 @@ class TestGeometricSpace(unittest.TestCase):
 
     @unittest.skip('ignore')
     def test_show_tangent_vector_geodesics(self):
-        from geometricspace import GeometricSpace, ManifoldPoint
+        from geometricspace import GeometricSpace
 
-       # filename = '../../../data/hypersphere_data_1.txt'
-       # data = GeometricSpace.load_csv(filename)
         manifold = HypersphereSpace(True)
         samples = manifold.sample(2)
         manifold_points = [
@@ -69,7 +69,6 @@ class TestGeometricSpace(unittest.TestCase):
 
     @unittest.skip('ignore')
     def test_euclidean_mean(self):
-        from geometricspace import ManifoldPoint
         manifold = HypersphereSpace(True)
         samples = manifold.sample(3)
         manifold_points = [
@@ -82,8 +81,6 @@ class TestGeometricSpace(unittest.TestCase):
 
     @unittest.skip('ignore')
     def test_frechet_mean(self):
-        from geometricspace import ManifoldPoint
-
         manifold = HypersphereSpace(True)
         samples = manifold.sample(2)
         assert(manifold.belongs(samples[0]))   # Is True
@@ -100,10 +97,10 @@ class TestGeometricSpace(unittest.TestCase):
         manifold.belongs(euclidean_mean)   # Is False
         exp_map = manifold.tangent_vectors(manifold_points)
         tgt_vec, end_point = exp_map[0]
-        assert(manifold.belongs(end_point))     # Is True
+        assert manifold.belongs(end_point)     # Is True
         frechet_mean = manifold.frechet_mean(manifold_points[0], manifold_points[1])
         print(f'Euclidean mean: {euclidean_mean}\nFrechet mean: {frechet_mean}')
-        assert (manifold.belongs(frechet_mean))
+        assert manifold.belongs(frechet_mean)
 
         frechet_pt = ManifoldPoint(
             id='Frechet mean',
@@ -113,18 +110,82 @@ class TestGeometricSpace(unittest.TestCase):
         manifold_points.append(frechet_pt)
         manifold.show_manifold(manifold_points, [euclidean_mean])
 
+    @unittest.skip('ignore')
     def test_extrinsic_to_intrinsic(self):
-        from geometricspace import ManifoldPoint
+        intrinsic = False
+        manifold = HypersphereSpace(True, intrinsic)
+        # Create Manifold points with default extrinsic coordinates
+        random_samples = manifold.sample(2)
+        intrinsic = False
+        manifold_pts = [
+            ManifoldPoint(f'id{index}', value, None, False, intrinsic)
+            for index, value in enumerate(random_samples)
+        ]
+        assert manifold.belongs(manifold_pts[0])
+        print(f'From extrinsic Coordinates:\n{[m_pt.location for m_pt in manifold_pts]}')
+        intrinsic_manifold_pts = manifold.extrinsic_to_intrinsic(manifold_pts)
+        print(f'To intrinsic Coordinates: {[m_pt.location for m_pt in intrinsic_manifold_pts]}')
 
-        manifold = HypersphereSpace(True)
+    @unittest.skip('ignore')
+    def test_intrinsic_to_extrinsic(self):
+        intrinsic = True
+        manifold = HypersphereSpace(True, intrinsic)
+        # Create Manifold points with default extrinsic coordinates
         random_samples = manifold.sample(2)
         manifold_pts = [
-            ManifoldPoint(f'id{index}', value, None, False, False) for index, value in enumerate(random_samples)
+            ManifoldPoint(f'id{index}', value, None, False, intrinsic) for index, value in enumerate(random_samples)
+        ]
+        print(f'From intrinsic Coordinates:\n{[m_pt.location for m_pt in manifold_pts]}')
+        extrinsic_manifold_pts = manifold.intrinsic_to_extrinsic(manifold_pts)
+        print(f'To extrinsic Coordinates:\n{[m_pt.location for m_pt in extrinsic_manifold_pts]}')
+
+    @unittest.skip('ignore')
+    def test_reciprocate_coordinates(self):
+        intrinsic = False
+        manifold = HypersphereSpace(True)
+        # Create Manifold points with default extrinsic coordinates
+        random_samples = manifold.sample(2)
+        manifold_pts = [
+            ManifoldPoint(f'id{index}', value, None, False, intrinsic)
+            for index, value in enumerate(random_samples)
+        ]
+        assert manifold.belongs(manifold_pts[0])
+        print(f'Original extrinsic coordinates:\n{[m_pt.location for m_pt in manifold_pts]}')
+        intrinsic_manifold_pts = manifold.extrinsic_to_intrinsic(manifold_pts)
+        print(f'Intrinsic Coordinates:\n{[m_pt.location for m_pt in intrinsic_manifold_pts]}')
+        extrinsic_manifold_pts = manifold.intrinsic_to_extrinsic(intrinsic_manifold_pts)
+        print(f'Regenerated extrinsic Coordinates:\n{[m_pt.location for m_pt in extrinsic_manifold_pts]}')
+
+    @unittest.skip('ignore')
+    def test_extrinsic_to_spherical(self):
+        intrinsic = False
+        manifold = HypersphereSpace(True, intrinsic)
+        # Create Manifold points with default extrinsic coordinates
+        random_samples = manifold.sample(2)
+        manifold_pts = [
+            ManifoldPoint(f'id{index}', value, None, False, intrinsic)
+            for index, value in enumerate(random_samples)
+        ]
+        print(f'Original extrinsic coordinates:\n{[m_pt.location for m_pt in manifold_pts]}')
+
+        intrinsic_manifold_pts = manifold.extrinsic_to_intrinsic(manifold_pts)
+        print(f'Intrinsic Coordinates:\n{[m_pt.location for m_pt in intrinsic_manifold_pts]}')
+
+        spherical_manifold_pts = manifold.extrinsic_to_spherical(manifold_pts)
+        print(f'Spherical Coordinates:\n{[m_pt.location for m_pt in spherical_manifold_pts]}')
+
+    def test_extrinsic_to_polar(self):
+        intrinsic = False
+        manifold = HypersphereSpace(True, intrinsic)
+        # Create Manifold points with default extrinsic coordinates
+        random_samples = manifold.sample(2)
+        manifold_pts = [
+            ManifoldPoint(f'id{index}', value, None, False, intrinsic)
+            for index, value in enumerate(random_samples)
         ]
 
-
-
-
+        polar_coordinates = manifold.extrinsic_to_intrinsic_polar(manifold_pts)
+        print(polar_coordinates)
 
 
 if __name__ == '__main__':

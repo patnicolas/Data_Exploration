@@ -7,7 +7,8 @@ directory = path.Path(__file__).abspath()
 sys.path.append(directory.parent.parent)
 
 import numpy as np
-from geometricspace import GeometricSpace, ManifoldPoint
+from geometricspace import GeometricSpace
+from manifoldpoint import ManifoldPoint
 from typing import NoReturn, List
 
 
@@ -55,7 +56,6 @@ class TestGeometricSpace(unittest.TestCase):
         print(f'Loaded Array:\n{data}')
 
     def test_to_intrinsic(self):
-        from geometricspace import ManifoldPoint
         from hyperspherespace import HypersphereSpace
 
         manifold = HypersphereSpace(True)
