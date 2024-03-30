@@ -54,6 +54,13 @@ class ManifoldPoint:
         """
         return space.intrinsic_to_extrinsic_coords(self.location) if self.intrinsic else self.location
 
+    def __str__(self):
+        tgt_vector_str = str(self.tgt_vector) if self.tgt_vector is not None else 'None'
+        geodesic_str = 'Geodesic' if self.geodesic else 'No Geodesic'
+        intrinsic_str = 'Intrinsic' if self.intrinsic else 'Extrinsic'
+        return f'Id={self.id}, Location={self.location}, Tangent Vector={tgt_vector_str},' \
+               f'{geodesic_str}, {intrinsic_str}'
+
     # -------------- Helper private methods ----------------------
 
     @staticmethod

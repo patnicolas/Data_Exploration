@@ -135,7 +135,7 @@ class HypersphereSpace(GeometricSpace):
     def extrinsic_to_intrinsic_polar(self, manifold_pts: List[ManifoldPoint]) -> List[ManifoldPoint]:
         return [ManifoldPoint(
             id=pt.id,
-            location=self.__extrinsic_to_polar(pt.location),
+            location=pt.to_intrinsic_polar(self.space),
             tgt_vector=pt.tgt_vector,
             geodesic=pt.geodesic,
             intrinsic=False) for pt in manifold_pts]
