@@ -1,4 +1,5 @@
-
+__author__ = "Patrick Nicolas"
+__copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from sympy.vector import CoordSys3D
 from typing import AnyStr, List
@@ -39,6 +40,7 @@ class VectorAlgebra3D(object):
 
     def mul(self, alpha: float) -> List[Vector3D]:
         return [v.mul(alpha) for v in self.vectors]
+
 
 if __name__ == '__main__':
     v = Vector3D(3.0, 6.2, 1.0)

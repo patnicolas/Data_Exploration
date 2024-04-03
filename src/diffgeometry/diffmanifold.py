@@ -1,11 +1,10 @@
 __author__ = "Patrick Nicolas"
-__copyright__ = "Copyright 2020, 2024  All rights reserved."
+__copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from sympy.diffgeom import Manifold, Patch, CoordSystem, BaseScalarField
 from sympy import Lambda, symbols, Matrix, atan2, cos, sin, sqrt
 from typing import AnyStr, Optional, Callable, TypedDict, Tuple, List, Any
 from dataclasses import dataclass
-
 
 
 @dataclass
@@ -64,11 +63,6 @@ class DiffManifold(object):
         second_field = BaseScalarField(target_coord_system, 1)
         target = target_coord_system.point(list(var_symbols))
         return func([first_field, second_field]).rcall(target)
-
-    def get_base_vector_field(self, index: int):
-        from sympy.diffgeom.rn import R2, R2_p, R2_r
-        from sympy.diffgeom import BaseVectorField
-
 
     @staticmethod
     def norm(base_scalar_fields: List[BaseScalarField]) -> BaseScalarField:
