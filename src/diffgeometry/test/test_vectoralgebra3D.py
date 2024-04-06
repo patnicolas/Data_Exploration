@@ -7,7 +7,7 @@ sys.path.append(directory.parent.parent)
 print(sys.path)
 from vectoralgebra3D import Vector3D
 
-class test_vectoralgebra3D(unittest.TestCase):
+class TestVectorAlgebra3D(unittest.TestCase):
     def test_vector_3D(self):
         v = Vector3D(4, 7, 1)
         print(str(v))
