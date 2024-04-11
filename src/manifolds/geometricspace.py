@@ -13,7 +13,6 @@ from abc import ABC
 from enum import Enum
 
 
-
 """
     Abstract class that defined the key components of a Geometric Space. It lists
     the various supported manifolds. 

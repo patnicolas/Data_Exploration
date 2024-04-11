@@ -46,7 +46,7 @@ class VectorOperators(object):
     @staticmethod
     def show_3D_function(f: Callable[[float, float, float], float], grid_units: np.array) -> NoReturn:
         """
-            Method to display a function 
+            Method to display a function
                  :param grad_f List of gradient component as functions
                  :param axis_values Values assigned to each axis
              """

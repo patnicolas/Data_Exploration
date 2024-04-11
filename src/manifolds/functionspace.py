@@ -15,34 +15,34 @@ from geometricexception import GeometricException
 """
     Class wrapper for the Function space using the Hilbert Sphere. The constructor generates the
     sample for the domain associated with the functions. The Hilbert domain is defined as [0, 1].
-    This class inherit the HilberSphere defined in the Geomstats module
+    This class inherit the Hilbert Sphere defined in the Geomstats module
     
     :param num_domain_samples Number of samples (equidistant) used to represent the Hilbert interval
     Throw a GeometricException if the number of samples < 2
 """
 
-class FunctionsSphereSpace(HilbertSphere):
+
+class FunctionSpace(HilbertSphere):
     def __init__(self, num_domain_samples: int):
         if num_domain_samples < 2:
             raise GeometricException(f'Number of samples {num_domain_samples} should be > 1')
 
         domain_samples = gs.linspace(0, 1, num=num_domain_samples)
-        super(FunctionsSphereSpace, self).__init__(domain_samples, True)
+        super(FunctionSpace, self).__init__(domain_samples, True)
 
-    @staticmethod
-    def create_manifold_point(id: AnyStr, vector: np.array, base_point: np.array) -> ManifoldPoint:
+    def create_manifold_point(self, id: AnyStr, vector: np.array, base_point: np.array) -> ManifoldPoint:
         """
             Generate a manifold pont with a base_point of the manifold and a direction, vector
             :param id Identifier for the Manifold Point
-            :param vector Vector that define the direction of the tangent vector
+            :param vector A vector that define the direction of the tangent vector
             :param base_point Point or anchor on the manifold
             :throw GeometricException If the base point does not belong to the Hilbert space
         """
-        if not super.belongs(base_point):
+        if not self.belongs(base_point):
             raise GeometricException(f'{base_point} does not belong to this function sphere space')
 
         # Compute the tangent vector using the direction 'vector' and point 'base_point'
-        tgt_vector = super.to_tangent(vector, base_point)
+        tgt_vector = self.to_tangent(vector, base_point)
         return ManifoldPoint(id, base_point, tgt_vector)
 
     def random_manifold_points(self, n_samples: int) -> List[ManifoldPoint]:
@@ -86,7 +86,6 @@ class FunctionsSphereSpace(HilbertSphere):
             raise GeometricException(f'{target_pt.id} does not belong to this function sphere space')
 
         return self.metric.log(point=manifold_base_pt.location, base_point=target_pt.location)
-
 
     def inner_product(self, tgt_vector1: np.array, tgt_vector2: np.array) -> np.array:
         """
