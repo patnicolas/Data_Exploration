@@ -2,7 +2,7 @@ __author__ = "Patrick Nicolas"
 __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 import numpy as np
-from typing import List, AnyStr
+from typing import List, AnyStr, Optional
 from geomstats.geometry.base import LevelSet
 from dataclasses import dataclass
 
@@ -21,9 +21,9 @@ from dataclasses import dataclass
 class ManifoldPoint:
     id: AnyStr
     location: np.array
-    tgt_vector: List[float] = None
-    geodesic: bool = False
-    intrinsic: bool = False
+    tgt_vector: Optional[List[float]] = None
+    geodesic: Optional[bool] = False
+    intrinsic: Optional[bool] = False
 
     def to_intrinsic(self, space: LevelSet) -> np.array:
         """
