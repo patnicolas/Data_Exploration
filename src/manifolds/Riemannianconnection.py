@@ -7,6 +7,8 @@ from geomstats.geometry.base import LevelSet
 import numpy as np
 from typing import AnyStr, Optional
 from manifoldpoint import ManifoldPoint
+from geometricexception import GeometricException
+
 
 """
     Create a formal Riemann connection with associated metric from a Manifold or Level set.
@@ -22,11 +24,12 @@ from manifoldpoint import ManifoldPoint
 
 
 class RiemannianConnection(object):
-    def __init__(self, space: LevelSet, manifold_descriptor: Optional[AnyStr] = None):
+    def __init__(self, space: LevelSet, manifold_type: AnyStr):
         self.riemannian_metric = RiemannianConnection.__get_metric(space)
-        manifold_descriptor_str = manifold_descriptor if manifold_descriptor is not None else ''
-        self.manifold_descriptor = f'{manifold_descriptor_str}\nDimension: {space.dim}\nShape: {space.shape}' \
-                                   f'\nCoordinates type: {space.default_coords_type} '
+        self.manifold_descriptor = f'{manifold_type}\nDimension: {space.dim}\nShape: {space.shape}' \
+                                   f'\nCoordinates type: {space.default_coords_type}'
+        # Add 1 dimension for extrinsic coordinates
+        self.ndim = space.dim+1 if space.default_coords_type == "extrinsic" else space.dim
 
     def __str__(self):
         return f'Riemannian Connection for {self.manifold_descriptor}'
@@ -116,11 +119,27 @@ class RiemannianConnection(object):
         :return: Parallel transport
         :rtype: Numpy array
         """
+        if manifold_base_pt.ndim() != self.ndim:
+            raise GeometricException(f'Base pt dimension {manifold_base_pt.ndim()} should be {self.ndim}')
+
         return self.riemannian_metric.parallel_transport(
             manifold_base_pt.tgt_vector,
             manifold_base_pt.location,
             direction,
             manifold_end_pt.location)
+
+    def levi_civita_coefficients(self, base_pt: np.array) -> np.array:
+        """
+        Compute the coefficients of the Levi-Civita connection (or Christoffel symbols) on a Riemann manifold
+        which metric is extracted from the hypersphere
+        :param base_pt:
+        :type base_pt: Numpy array
+        :return: The intrinsic metric for the Christoffel symbols
+        :rtype: Numpy array
+        """
+        if len(base_pt) != self.ndim:
+            raise GeometricException(f'Base pt dimension {len(base_pt)} should be {self.ndim}')
+        return self.riemannian_metric.christoffels(base_pt)
 
     def geodesic(self, manifold_base_pt: ManifoldPoint, end_point: ManifoldPoint = None) -> np.array:
         return NotImplementedError("method not implemented")

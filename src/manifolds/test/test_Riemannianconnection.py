@@ -14,6 +14,17 @@ import numpy as np
 
 class TestRiemannianConnection(unittest.TestCase):
 
+    def test_pprint(self):
+        from pprint import pprint
+
+        base_pt = np.array([0.4, 0.1, 0.0])
+        manifold_base_pt = ManifoldPoint(
+            id='base',
+            location=base_pt,
+            tgt_vector=np.array([[0.5, 0.1, 2.1]]))
+        pprint(manifold_base_pt)
+        print(f'My manifold: {manifold_base_pt}')
+
     def test_init(self):
         dim = 2
         coordinates_type = 'extrinsic'
@@ -66,15 +77,29 @@ class TestRiemannianConnection(unittest.TestCase):
         coordinates_type = 'extrinsic'
         # Instantiate the Hypersphere
         hypersphere = Hypersphere(dim=dim, equip=True, default_coords_type=coordinates_type)
-        riemannian_connection = RiemannianConnection(hypersphere, 'HyperSphere')
-        base_point = np.array([1.5, 2.0, 1.6])
-        manifold_base_point = ManifoldPoint(
+        riemann_connection = RiemannianConnection(hypersphere, 'HyperSphere')
+        base_pt = np.array([1.5, 2.0, 1.6])
+        manifold_base_pt = ManifoldPoint(
             id='base',
-            location=base_point,
+            location=base_pt,
             tgt_vector=np.array([[0.5, 0.1, 2.1]]))
-        manifold_end_point = ManifoldPoint(id='end',location=base_point + 0.4)
-        parallel_trans = riemannian_connection.parallel_transport(manifold_base_point, manifold_end_point)
+        manifold_end_pt = ManifoldPoint(id='end',location=base_pt + 0.4)
+        parallel_trans = riemann_connection.parallel_transport(manifold_base_pt, manifold_end_pt)
         print(f'Parallel transport: {parallel_trans}')
+
+    def test_levi_civita_coefficients(self):
+        dim = 2
+        coordinates_type = 'extrinsic'
+        # Instantiate the Hypersphere
+        hypersphere = Hypersphere(dim=dim, equip=True, default_coords_type=coordinates_type)
+        riemann_connection = RiemannianConnection(hypersphere, 'HyperSphere')
+        base_pt = np.array([1.5, 2.0, 1.6])
+        u = np.arctan(1.0/0.07091484)
+        print(f'U:{u}')
+        v = 0.5*np.sin(2*u)
+        print(f'V:{v}')
+        levi_civita_coefs = riemann_connection.levi_civita_coefficients(base_pt)
+        print(f'Levi-Civita coefficients:\n{str(levi_civita_coefs)}')
 
 
 if __name__ == '__main__':

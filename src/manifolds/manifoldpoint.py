@@ -25,6 +25,9 @@ class ManifoldPoint:
     geodesic: Optional[bool] = False
     intrinsic: Optional[bool] = False
 
+    def ndim(self) -> int:
+        return len(self.location)
+
     def to_intrinsic(self, space: LevelSet) -> np.array:
         """
         Convert the location as numpy array  from extrinsic to intrinsic coordinates if extrinsic
