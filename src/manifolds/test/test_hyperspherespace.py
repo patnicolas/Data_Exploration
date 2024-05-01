@@ -1,15 +1,7 @@
 import unittest
-import path
-import sys
-import os
-directory = path.Path(__file__).abspath()
-sys.path.append(directory.parent.parent)
-sys.path.append(directory.parent)
-
-from hyperspherespace import HypersphereSpace
-from manifoldpoint import ManifoldPoint
-from spacevisualization import VisualizationParams, SpaceVisualization
-import numpy as np
+from manifolds.hyperspherespace import HypersphereSpace
+from manifolds.manifoldpoint import ManifoldPoint
+from manifolds. spacevisualization import VisualizationParams, SpaceVisualization
 
 
 class TestGeometricSpace(unittest.TestCase):

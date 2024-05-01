@@ -1,14 +1,7 @@
 import unittest
-import path
-import sys
-import os
-
-directory = path.Path(__file__).abspath()
-sys.path.append(directory.parent.parent)
-
 import numpy as np
-from geometricspace import GeometricSpace
-from manifoldpoint import ManifoldPoint
+from manifolds.geometricspace import GeometricSpace
+from manifolds.manifoldpoint import ManifoldPoint
 from typing import NoReturn, List
 
 

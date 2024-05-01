@@ -1,15 +1,9 @@
 import unittest
-import path
-import sys
-import os
-directory = path.Path(__file__).abspath()
-sys.path.append(directory.parent.parent)
-sys.path.append(directory.parent)
-
-from Riemannianconnection import RiemannianConnection
-from manifoldpoint import ManifoldPoint
 from geomstats.geometry.hypersphere import Hypersphere, HypersphereMetric
 import numpy as np
+from manifolds.Riemannianconnection import RiemannianConnection
+from manifolds.manifoldpoint import ManifoldPoint
+
 
 
 class TestRiemannianConnection(unittest.TestCase):
@@ -101,6 +95,47 @@ class TestRiemannianConnection(unittest.TestCase):
         levi_civita_coefs = riemann_connection.levi_civita_coefficients(base_pt)
         print(f'Levi-Civita coefficients:\n{str(levi_civita_coefs)}')
 
+
+    def test_curvature_tensor(self):
+        hypersphere = Hypersphere(dim=2, equip=True, default_coords_type='intrinsic')
+        riemann_connection = RiemannianConnection(hypersphere, 'HyperSphere')
+        base_pt = np.array([1.5, 2.0, 1.6])
+        X = np.array([0.4, 0.1, 0.8])
+        Y = np.array([0.7, 0.1, -0.2])
+        Z = np.array([0.4, 0.9, 0.0])
+        curvature = riemann_connection.curvature_tensor([X, Y, Z], base_pt)
+        print(f'Curvature: {curvature}')
+
+    def test_curvature_derivative_tensor(self):
+        hypersphere = Hypersphere(dim=2, equip=True, default_coords_type='intrinsic')
+        riemann_connection = RiemannianConnection(hypersphere, 'HyperSphere')
+        base_pt = np.array([0.5, 1.9, 0.4])
+        X = np.array([0.4, 0.1, 0.8])
+        Y = np.array([0.4, 0.3, 0.8])
+        Z = np.array([0.4, 0.6, 0.8])
+        T = np.array([0.4, -0.5, 0.8])
+        curvature_derivative = riemann_connection.curvature_derivative_tensor([X, Y, Z, T], base_pt)
+        print(f'Curvature derivative: {curvature_derivative}')
+
+    def test_sectional_curvature_tensor(self):
+        hypersphere = Hypersphere(dim=2, equip=True, default_coords_type='intrinsic')
+        riemann_connection = RiemannianConnection(hypersphere, 'HyperSphere')
+        base_pt = np.array([1.5, 2.0, 1.6])
+
+        X = np.array([0.4, 0.1, 0.8])
+        Y = np.array([0.4, 0.1, -0.8])
+        curvature = riemann_connection.sectional_curvature_tensor(X, Y, base_pt)
+        print(f'Sectional curvature: {curvature}')
+
+        X = np.array([0.4, 0.1, 0.8])
+        Y = np.array([-0.4, -0.1, -0.8])
+        curvature = riemann_connection.sectional_curvature_tensor(X, Y, base_pt)
+        print(f'Sectional curvature: {curvature}')
+
+        X = np.array([0.4, 0.1, 0.8])
+        Y = np.array([0.8, 0.2, 1.6])
+        curvature = riemann_connection.sectional_curvature_tensor(X, Y, base_pt)
+        print(f'Sectional curvature: {curvature}')
 
 if __name__ == '__main__':
     unittest.main()

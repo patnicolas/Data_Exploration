@@ -5,10 +5,9 @@ import geomstats.backend as gs
 from geomstats.geometry.riemannian_metric import RiemannianMetric
 from geomstats.geometry.base import LevelSet
 import numpy as np
-from typing import AnyStr, Optional
-from manifoldpoint import ManifoldPoint
-from geometricexception import GeometricException
-
+from typing import AnyStr, Optional, List
+from manifolds.manifoldpoint import ManifoldPoint
+from manifolds.geometricexception import GeometricException
 
 """
     Create a formal Riemann connection with associated metric from a Manifold or Level set.
@@ -29,7 +28,7 @@ class RiemannianConnection(object):
         self.manifold_descriptor = f'{manifold_type}\nDimension: {space.dim}\nShape: {space.shape}' \
                                    f'\nCoordinates type: {space.default_coords_type}'
         # Add 1 dimension for extrinsic coordinates
-        self.ndim = space.dim+1 if space.default_coords_type == "extrinsic" else space.dim
+        self.ndim = space.dim + 1 if space.default_coords_type == "extrinsic" else space.dim
 
     def __str__(self):
         return f'Riemannian Connection for {self.manifold_descriptor}'
@@ -68,7 +67,7 @@ class RiemannianConnection(object):
         if len(vector1) != len(vector2):
             raise GeometricException(f'Inner product of vector size {len(vector1)} and vector size {len(vector2)}')
 
-        return 0 if len(vector1) == 0 or len(vector2) == 0 else  np.inner(vector1, vector2)
+        return 0 if len(vector1) == 0 or len(vector2) == 0 else np.inner(vector1, vector2)
 
     def manifold_point_inner_product(
             self,
@@ -83,7 +82,7 @@ class RiemannianConnection(object):
         :return: inner product in a range [0, 1] if both tangent vectors are not null, 0 otherwise
         :rtype: Numpy/float value
         """
-        return self.inner_product(manifold_base_pt.tgt_vector,  manifold_pt.tgt_vector, manifold_base_pt.location)
+        return self.inner_product(manifold_base_pt.tgt_vector, manifold_pt.tgt_vector, manifold_base_pt.location)
 
     def norm(self, vector: np.array, base_pt: np.array) -> np.array:
         """
@@ -140,6 +139,69 @@ class RiemannianConnection(object):
         if len(base_pt) != self.ndim:
             raise GeometricException(f'Base pt dimension {len(base_pt)} should be {self.ndim}')
         return self.riemannian_metric.christoffels(base_pt)
+
+    def curvature_tensor(self, tgt_vectors: List[np.array], base_pt: np.array) -> np.array:
+        """
+        Compute the curvature tensor based on Christoffel symbols for a manifold using Levi-Civita connection
+        The computation of the curvature tensor relies on 3 indices tensor or tangent vectors.
+        A Geometric exception is raised if the tangent vectors are not properly defined.
+
+        :param tgt_vectors: List of 3 tangent vectors along the curve on the manifold
+        :type tgt_vectors: List of Numpy array
+        :param base_pt: Base point on the manifold
+        :type base_pt: Numpy array
+        :return: Curvature tensor
+        :rtype: Numpy array
+        """
+        if len(tgt_vectors) != 3 or any(vec is None for vec in tgt_vectors):
+            raise GeometricException(f'Tangent vectors for the curvature {str(tgt_vectors)} is not properly defined')
+
+        return self.riemannian_metric.curvature(tgt_vectors[0], tgt_vectors[1], tgt_vectors[2], base_pt)
+
+    def curvature_derivative_tensor(self, tgt_vectors: List[np.array], base_pt: Optional[np.array] = None) -> np.array:
+        """
+        Compute the derivative of the curvature tensor on a Riemann manifold equipped with a tensor metric
+        and Levi-Civita connection.
+        :param tgt_vectors: List of 4 tangent vector with dimension ndim and dimension of base point
+        :type tgt_vectors: List of Numpy Array
+        :param base_pt: Base point on the Riemann manifold
+        :type base_pt: Numpy array
+        :return: Curvature derivative tensor
+        :rtype:Numpy array
+        """
+        if len(tgt_vectors) != 4 or any(vec is None or len(vec) != len(tgt_vectors[0]) for vec in tgt_vectors):
+            raise GeometricException(f'Tangent vectors for curvature derivative are undefined')
+        if len(base_pt) != len(tgt_vectors[0]):
+            raise GeometricException(f'Dimension of base point {len(base_pt)} should be equal to dimension tangent '
+                                     f'vectors {len(tgt_vectors[0])}')
+
+        return self.riemannian_metric.curvature_derivative(
+            tgt_vectors[0],
+            tgt_vectors[1],
+            tgt_vectors[2],
+            tgt_vectors[3],
+            base_pt)
+
+    def sectional_curvature_tensor(self,
+                                   tgt_vec1: np.array,
+                                   tgt_vec2: np.array,
+                                   base_pt: Optional[np.array] = None) -> np.array:
+        """
+
+        :param tgt_vec1:
+        :type tgt_vec1:
+        :param tgt_vec2:
+        :type tgt_vec2:
+        :param base_pt:
+        :type base_pt:
+        :return:
+        :rtype:
+        """
+        if len(tgt_vec1) != len(tgt_vec2):
+            raise GeometricException(f'Dimension of tangent vectors for sectional curvature {len(tgt_vec1)} '
+                                     f'and {len(tgt_vec2)} should be identical')
+
+        return self.riemannian_metric.sectional_curvature(tgt_vec1, tgt_vec2, base_pt)
 
     def geodesic(self, manifold_base_pt: ManifoldPoint, end_point: ManifoldPoint = None) -> np.array:
         return NotImplementedError("method not implemented")

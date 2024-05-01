@@ -1,14 +1,7 @@
 import unittest
-import path
-import sys
-import os
 import numpy as np
-directory = path.Path(__file__).abspath()
-sys.path.append(directory.parent.parent)
-sys.path.append(directory.parent)
-
-from manifoldpoint import ManifoldPoint
-from hyperspherespace import HypersphereSpace
+from manifolds.manifoldpoint import ManifoldPoint
+from manifolds.hyperspherespace import HypersphereSpace
 
 
 class TestManifoldPoint(unittest.TestCase):

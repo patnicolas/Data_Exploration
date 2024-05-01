@@ -1,13 +1,7 @@
 import unittest
-import path
-import sys
-import os
-directory = path.Path(__file__).abspath()
-sys.path.append(directory.parent.parent)
-
-from euclideanspace import EuclideanSpace
-from geometricspace import GeometricSpace
-from spacevisualization import VisualizationParams
+from manifolds.euclideanspace import EuclideanSpace
+from manifolds.geometricspace import GeometricSpace
+from manifolds.spacevisualization import VisualizationParams
 
 
 class TestEuclideanSpace(unittest.TestCase):

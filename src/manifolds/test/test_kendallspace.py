@@ -1,14 +1,6 @@
 import unittest
-import path
-import sys
-import os
-directory = path.Path(__file__).abspath()
-sys.path.append(directory.parent.parent)
-
-from kendallspace import KendallSpace
-from spacevisualization import VisualizationParams, SpaceVisualization
-import numpy as np
-
+from manifolds.kendallspace import KendallSpace
+from manifolds.spacevisualization import VisualizationParams, SpaceVisualization
 
 
 class TestKendallSpace(unittest.TestCase):

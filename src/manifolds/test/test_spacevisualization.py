@@ -1,12 +1,7 @@
 import unittest
-import path
-import sys
-import os
-directory = path.Path(__file__).abspath()
-sys.path.append(directory.parent.parent)
 
 import numpy as np
-from spacevisualization import Space2DVisualization
+from manifolds.spacevisualization import SpaceVisualization, VisualizationParams
 import matplotlib.pyplot as plt
 
 
@@ -21,7 +16,8 @@ class TestSpaceVisualization(unittest.TestCase):
         fig_size = (4, 4)
         label = 'Values'
         title = 'This is a test'
-        space_visualization = Space2DVisualization(fig_size, label, title)
+        visualization_param = VisualizationParams(label, title, fig_size)
+        space_visualization = SpaceVisualization(visualization_param)
         space_visualization.scatter(data_points)
 
     @unittest.skip
@@ -57,11 +53,12 @@ class TestSpaceVisualization(unittest.TestCase):
         fig_size = (4, 4)
         label = 'Values'
         title = 'This is a test'
-        space_visualization = Space2DVisualization(fig_size, label, title)
-        space_visualization.plot_3d(data_points, True)
+        visualization_param = VisualizationParams(label, title, fig_size)
+        space_visualization = SpaceVisualization(visualization_param)
+        space_visualization.plot_3d(data_points)
 
     def test_3d_sphere(self):
-        from geometricspace import HypersphereSpace
+        from manifolds.hyperspherespace import HypersphereSpace
         dim = 2
         num_samples = 10
         manifold = HypersphereSpace(dim)
@@ -71,7 +68,8 @@ class TestSpaceVisualization(unittest.TestCase):
         fig_size = (8, 8)
         label = 'Values'
         title = 'This is a test'
-        space_visualization = Space2DVisualization(fig_size, label, title)
+        visualization_param = VisualizationParams(label, title, fig_size)
+        space_visualization = SpaceVisualization(visualization_param)
         space_visualization.plot_3d(data_points, "S2")
 
 
