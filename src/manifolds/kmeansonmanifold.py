@@ -12,13 +12,17 @@ import geomstats.backend as gs
 class KMeansResult:
     center: np.array
     label: np.array
-    predicted: np.array
 
     def __str__(self) -> AnyStr:
-        return f'Center: {self.center}, Label: {self.label}, Predicted: {self.predicted}'
+        return f'Center: {self.center}, Label: {self.label}'
 
 
 class KMeansOnManifold(object):
+    random_von_mises_fisher_label = 'random_von_mises_fisher'
+    random_rand_riemann_normal_label = 'random_riemann_normal'
+    random_uniform_label = 'random_uniform'
+    clustered_random_uniform_label = 'constrained_random_uniform'
+
     def __init__(self, num_samples: int, num_clusters: int, random_gen: AnyStr = 'random_von_mises_fisher'):
         """
         Constructor for the evaluation of KMeans on Euclidean space and Riemann manifold (Hypersphere)
@@ -29,44 +33,85 @@ class KMeansOnManifold(object):
         :param random_gen: Random generator identifier on the hypersphere
         :type random_gen: AnyStr
         """
+        # Step 1: Initialize the manifold
         self.hypersphere = Hypersphere(dim=2, equip=True)
+
+        # Step 2: Generate a single cluster with random data points on hypersphere
+        self.random_gen = random_gen
         match random_gen:
             case 'random_von_mises_fisher':
-                cluster = self.hypersphere.random_von_mises_fisher(kappa=20, n_samples=num_samples)
-            case 'random_rand_riemann_normal':
-                cluster = self.hypersphere.random_riemannian_normal(n_samples=num_samples)
+                # Select a pivot or mean value
+                _cluster = self.hypersphere.random_uniform(n_samples=2)
+                # Generate the cluster
+                cluster = self.hypersphere.random_von_mises_fisher(mu=_cluster[0], kappa=60, n_samples=num_samples, max_iter=200)
+            case 'random_riemann_normal':
+                cluster = self.hypersphere.random_riemannian_normal(n_samples=num_samples, max_iter=300)
             case 'random_uniform':
                 cluster = self.hypersphere.random_uniform(n_samples=num_samples)
+            case 'constrained_random_uniform':
+                # Generate random values with constrains on each dimension [-1, -0.35], [0.3, 1] and [-1, 0.4]
+                y = [x for x in self.hypersphere.random_uniform(n_samples=100000)
+                     if x[0] <= -0.35 and x[1] >= 0.3 and x[2] <= -0.40]
+                cluster = np.array(y)[0:num_samples]
             case _:
+                raise ValueError(f'{random_gen} generator is not supported')
                 cluster = self.hypersphere.random_uniform(n_samples=num_samples)
+
+        # Step 3: Generate other clusters using SO(3) manifolds
         # Use the symmetric rotation Lie group in dimension 3
         so3_lie_group = SpecialOrthogonal(3, equip=False)
         # Generate the clusters
         self.clusters = [cluster @ so3_lie_group.random_uniform() for _ in range(num_clusters)]
 
     def __str__(self) -> AnyStr:
-        return '\n'.join([f'Cluster: {idx+1}\n{str(cluster)}' for idx, cluster in enumerate(self.clusters)])
+        return '\n'.join([f'Cluster #{idx+1} {str(cluster)}' for idx, cluster in enumerate(self.clusters)])
 
     def euclidean_clustering(self) -> List[KMeansResult]:
         from sklearn.cluster import KMeans
 
-        kmeans = KMeans(n_clusters=len(self.clusters))
+        kmeans = KMeans(n_clusters=len(self.clusters), init='k-means++', algorithm='elkan', max_iter=140)
         data = np.concatenate(self.clusters, axis=0)
         kmeans.fit(data)
-        predictions = kmeans.predict(data)
         centers = kmeans.cluster_centers_
         labels = kmeans.labels_
-        return [KMeansResult(center, label, prediction)
-                for center, label, prediction in zip(centers, labels, predictions)]
+        return [KMeansResult(center, label) for center, label in zip(centers, labels)]
 
     def riemannian_clustering(self) -> List[KMeansResult]:
         from geomstats.learning.kmeans import RiemannianKMeans
 
+        self.visualize()
         kmeans = RiemannianKMeans(space=self.hypersphere, n_clusters=len(self.clusters))
         data = gs.concatenate(self.clusters, axis =0)
         kmeans.fit(data)
         centers = kmeans.centroids_
         labels = kmeans.labels_
-        predictions = kmeans.predict(data)
-        return [KMeansResult(center, label, prediction)
-                for center, label, prediction in zip(centers, labels, predictions)]
+        return [KMeansResult(center, label) for center, label in zip(centers, labels)]
+
+    def visualize(self):
+        import matplotlib.pyplot as plt
+        import geomstats.visualization as visualization
+
+        fig = plt.figure(figsize=(8, 6))
+        colors = ["red", "blue", 'black', 'green']
+        data = gs.concatenate(self.clusters, axis =0)
+        ax = visualization.plot(data, space="S2", marker=".", color="grey")
+        for idx, cluster in enumerate(self.clusters):
+            ax = visualization.plot(
+               cluster , space="S2", color=colors[idx], alpha=0.7, label=f'Cluster {idx}'
+            )
+
+        ax.auto_scale_xyz([-1, 1], [-1, 1], [-1, 1])
+        ax.legend();
+        ax.set_title(f'Kmeans on Hypersphere for {self.random_gen} generator')
+        ax.auto_scale_xyz([-1, 1], [-1, 1], [-1, 1])
+        plt.show()
+
+    def evaluate(self) -> np.array:
+        from geomstats.learning.kmeans import RiemannianKMeans
+        kmeans = RiemannianKMeans(space=self.hypersphere, n_clusters=len(self.clusters))
+        data = gs.concatenate(self.clusters, axis =0)
+        kmeans.fit(data)
+        predicted = kmeans.predict(self.clusters[0][0:20])
+        return predicted
+
+
