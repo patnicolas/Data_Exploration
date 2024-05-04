@@ -8,13 +8,36 @@ import numpy as np
 from dataclasses import dataclass
 import geomstats.backend as gs
 
+"""
+Data class to collect result associated with a cluster extracted with k-means unsupervised training
+@param center: Centroid
+@type center: Numpy array (3-dimension)
+@param label: Identifier for the cluster
+@type label: Numpy array
+"""
+
+
 @dataclass
-class KMeansResult:
+class KMeansCluster:
     center: np.array
     label: np.array
 
     def __str__(self) -> AnyStr:
         return f'Center: {self.center}, Label: {self.label}'
+
+
+"""
+Class to wrap the evaluation of k-means algorithm on Euclidean space using Scikit-learn library and
+on the hypersphere (as Riemann manifold) using Geomstats library.
+The evaluation relies on synthetic clustered data on hypersphere following the following steps:
+1. Generate a template cluster by employing a random generator on the manifold.
+2. Generate 4 clusters from the template using a special orthogonal Lie group in 3-dimensional space, SO(3).
+
+The synthetic dataset is created through random values generators on the hypersphere following these distributions:
+- Uniform distribution
+- Uniform distribution with constraints
+- von Mises-Fisher distribution
+"""
 
 
 class KMeansOnManifold(object):
@@ -25,7 +48,7 @@ class KMeansOnManifold(object):
 
     def __init__(self, num_samples: int, num_clusters: int, random_gen: AnyStr = 'random_von_mises_fisher'):
         """
-        Constructor for the evaluation of KMeans on Euclidean space and Riemann manifold (Hypersphere)
+        Constructor for the evaluation of k-means algorithm on Euclidean space and Riemann manifold (Hypersphere)
         :param num_samples: Number of random samples
         :type num_samples: int
         :param num_clusters: Number of clusters used in KMeans
@@ -66,7 +89,7 @@ class KMeansOnManifold(object):
     def __str__(self) -> AnyStr:
         return '\n'.join([f'Cluster #{idx+1} {str(cluster)}' for idx, cluster in enumerate(self.clusters)])
 
-    def euclidean_clustering(self) -> List[KMeansResult]:
+    def euclidean_clustering(self) -> List[KMeansCluster]:
         from sklearn.cluster import KMeans
 
         kmeans = KMeans(n_clusters=len(self.clusters), init='k-means++', algorithm='elkan', max_iter=140)
@@ -74,9 +97,9 @@ class KMeansOnManifold(object):
         kmeans.fit(data)
         centers = kmeans.cluster_centers_
         labels = kmeans.labels_
-        return [KMeansResult(center, label) for center, label in zip(centers, labels)]
+        return [KMeansCluster(center, label) for center, label in zip(centers, labels)]
 
-    def riemannian_clustering(self) -> List[KMeansResult]:
+    def riemannian_clustering(self) -> List[KMeansCluster]:
         from geomstats.learning.kmeans import RiemannianKMeans
 
         self.visualize()
@@ -85,7 +108,7 @@ class KMeansOnManifold(object):
         kmeans.fit(data)
         centers = kmeans.centroids_
         labels = kmeans.labels_
-        return [KMeansResult(center, label) for center, label in zip(centers, labels)]
+        return [KMeansCluster(center, label) for center, label in zip(centers, labels)]
 
     def visualize(self):
         import matplotlib.pyplot as plt
