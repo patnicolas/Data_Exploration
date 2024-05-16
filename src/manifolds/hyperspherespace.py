@@ -8,7 +8,6 @@ import numpy as np
 
 from spacevisualization import VisualizationParams, SpaceVisualization
 from geometricspace import GeometricSpace, ManifoldPoint
-from dataclasses import dataclass
 import geomstats.backend as gs
 from geometricexception import GeometricException
 

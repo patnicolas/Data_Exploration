@@ -1,17 +1,12 @@
 __author__ = "Patrick Nicolas"
 __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
-import geomstats.backend as gs
-from geomstats.geometry.base import LevelSet
 
 from manifoldpoint import ManifoldPoint
-from typing import AnyStr, List, Callable, NoReturn
-from dataclasses import dataclass
+from typing import AnyStr, List, NoReturn
 import numpy as np
 import abc
 from abc import ABC
-from enum import Enum
-
 
 """
     Abstract class that defined the key components of a Geometric Space. It lists

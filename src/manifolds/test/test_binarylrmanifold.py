@@ -1,34 +1,57 @@
 import unittest
 
 from manifolds.binarylrmanifold import BinaryLRManifold
+from geomstats.geometry.spd_matrices import SPDAffineMetric, SPDLogEuclideanMetric
+import numpy as np
+
 
 class BinaryLRManifoldTest(unittest.TestCase):
-    def test_generate(self):
-        n_samples = 2000
-        n_features = 16
-        binary_lr_manifold = BinaryLRManifold(n_features, n_samples)
-        train_data = binary_lr_manifold.generate()
-        n_train_samples = train_data.n_train_samples()
-        self.assertTrue(n_train_samples == int(n_samples*binary_lr_manifold.train_eval_split))
-        print(str(train_data))
 
-    def test_train_euclidean(self):
+    def test_generate_data(self):
         n_samples = 2000
+        n_features = 4
+        binary_lr_on_spd = BinaryLRManifold(n_features, n_samples)
+        train_data = binary_lr_on_spd.generate_random_data()
+        shape = train_data.shape()
+        print(f'First 2 data points: {train_data.X[:2]}')
+        print(f'First 2 labels: {train_data.y[:2]}')
+
+
+    def test_eval_spd_logistic_euclidean(self):
+        n_samples = 6000
         n_features = 16
-        binary_lr_manifold = BinaryLRManifold(n_features, n_samples)
-        train_data = binary_lr_manifold.generate()
-        lr_model = binary_lr_manifold.train_euclidean(train_data)
-        print(str(lr_model))
+        binary_lr_on_spd = BinaryLRManifold(n_features, n_samples)
+        train_data = binary_lr_on_spd.generate_random_data()
+        print(f'Training data shape: {train_data.shape()}')
+        spd = binary_lr_on_spd.create_spd(SPDLogEuclideanMetric)
+        result_dict = binary_lr_on_spd.evaluate_spd(train_data, spd[1])
+        mean_test_score = np.mean(result_dict["test_score"])
+        self.assertTrue(0.45 < mean_test_score < 0.55)
+        print(f'Cross validation: {result_dict["test_score"]} with mean: {mean_test_score}')
+
+
+    def test_eval_spd_affine_invariant(self):
+        n_samples = 10000
+        n_features = 16
+        binary_lr_on_spd = BinaryLRManifold(n_features, n_samples)
+        train_data = binary_lr_on_spd.generate_random_data()
+        print(f'Training data shape: {train_data.shape()}')
+        spd = binary_lr_on_spd.create_spd(SPDAffineMetric)
+        result_dict = binary_lr_on_spd.evaluate_spd(train_data, spd[1])
+        mean_test_score = np.mean(result_dict["test_score"])
+        self.assertTrue(0.45 < mean_test_score < 0.55)
+        print(f'Cross validation: {result_dict["test_score"]} with mean: {mean_test_score}')
 
     def test_eval_euclidean(self):
-        n_samples = 2000
+        n_samples = 6000
         n_features = 16
-        binary_lr_manifold = BinaryLRManifold(n_features, n_samples)
-        train_data = binary_lr_manifold.generate()
-        lr_model = binary_lr_manifold.train_euclidean(train_data)
-        accuracy = binary_lr_manifold.eval_euclidean(train_data, lr_model)
-        self.assertTrue(accuracy > 0.7)
-        print(f'\nAccuracy: {str(accuracy)}')
+        binary_lr_on_spd = BinaryLRManifold(n_features, n_samples)
+        train_data = binary_lr_on_spd.generate_random_data()
+        print(f'Training data shape: {train_data.shape()}')
+        result_dict = binary_lr_on_spd.evaluate_euclidean(train_data)
+        mean_test_score = np.mean(result_dict["test_score"])
+        self.assertTrue(0.45 < mean_test_score < 0.55)
+        print(f'Cross validation: {result_dict["test_score"]} with mean: {mean_test_score}')
 
 
 if __name__ == '__main__':
