@@ -58,7 +58,6 @@ class SPDTestData:
             label = label_map[index]
             labeled_data.append(features)
 
-
     def __str__(self) -> AnyStr:
         return f'X[0]: {self.X[0]}\ny[0]: {self.y[0]}'
 
@@ -67,6 +66,9 @@ class SPDTestData:
 Class that wraps the evaluation of Geomstats functions to evaluate the binary logistic regression 
 on a manifold as the group of Symmetric Positive Definite (SPD) matrices and compare with the 
 default logistic regression on the Euclidean space.
+
+The methods evaluate_euclidean and evaluate_spd apply the Scikit-learn cross validation to verify
+that the mean value of cross-validation score for randomly generated SPD matrices is close to 0.5
 """
 
 
@@ -92,10 +94,10 @@ class BinaryLRManifold(object):
         @rtype SPDTestData
         """
         y = np.stack([np.random.randint(0, 2) for _ in range(self.n_samples)])
-        X = np.stack([self.__generate_symmetric_positive() for _ in range(self.n_samples)])
+        X = np.stack([self.__generate_sps_data() for _ in range(self.n_samples)])
         return SPDTestData(X, y)
 
-    def create_spd(self, riemannian_metric: RiemannianMetric) -> Tuple[SPDMatrices, SPDMatrices]:
+    def create_spd(self, riemannian_metric: RiemannianMetric) -> SPDMatrices:
         """
         Create a pair of SPD matrices using one of the Riemann metric (either affine metric or
         logistic Euclidean metric
@@ -104,10 +106,9 @@ class BinaryLRManifold(object):
         @return A pair of manifold, SPD matrices
         @rtype Tuple of SPDMatrices
         """
-        manifold = SPDMatrices(self.n_features, equip=False)
         spd = SPDMatrices(self.n_features, equip=False)
         spd.equip_with_metric(riemannian_metric)
-        return manifold, spd
+        return spd
 
     @staticmethod
     def evaluate_euclidean(spd_test_data: SPDTestData) -> Dict[AnyStr, np.array]:
@@ -143,7 +144,7 @@ class BinaryLRManifold(object):
         return cross_validate(pipeline, spd_test_data.X, spd_test_data.y)
 
     """ ---------------------------  Private helper methods -----------------------  """
-    def __generate_symmetric_positive(self) -> np.array:
+    def __generate_sps_data(self) -> np.array:
         epsilon = 1e-6
         mat = np.random.rand(self.n_features, self.n_features)
         mat = (mat + mat.T)/2
