@@ -78,7 +78,7 @@ class KMeansOnManifold(object):
                 cluster = np.array(y)[0:num_samples]
             case _:
                 raise ValueError(f'{random_gen} generator is not supported')
-                cluster = self.hypersphere.random_uniform(n_samples=num_samples)
+                cluster = self.hypersphere_space.random_uniform(n_samples=num_samples)
 
         # Step 3: Generate other clusters using SO(3) manifolds
         # Use the symmetric rotation Lie group in dimension 3

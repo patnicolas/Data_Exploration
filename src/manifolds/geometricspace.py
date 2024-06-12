@@ -2,7 +2,7 @@ __author__ = "Patrick Nicolas"
 __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 
-from manifoldpoint import ManifoldPoint
+from manifolds.manifoldpoint import ManifoldPoint
 from typing import AnyStr, List, NoReturn
 import numpy as np
 import abc

@@ -4,9 +4,9 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_validate
 from dataclasses import dataclass
-from typing import AnyStr, Tuple, Dict, NoReturn
+from typing import AnyStr, Dict, NoReturn
 import numpy as np
-from geomstats.geometry.spd_matrices import SPDMatrices, SPDAffineMetric, SPDLogEuclideanMetric
+from geomstats.geometry.spd_matrices import SPDMatrices
 from geomstats.geometry.riemannian_metric import RiemannianMetric
 import geomstats.backend as gs  # Numpy
 
@@ -48,7 +48,8 @@ class SPDTestData:
         shape2= shape[1]*shape[2]
         self.X = self.X.reshape(shape[0], shape2)
 
-    def load_indexed_data(self, features_path: AnyStr, label_path: AnyStr) -> NoReturn:
+    @staticmethod
+    def load_indexed_data(features_path: AnyStr, label_path: AnyStr) -> NoReturn:
         train_data = np.genfromtxt(features_path, delimiter=',', skip_header=0)
         train_pairs = [(x[0], x[1:]) for x in train_data]
         labels = np.genfromtxt(label_path, delimiter=',', skip_header=0)

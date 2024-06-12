@@ -15,8 +15,8 @@ import numpy as np
 import geomstats.visualization as visualization
 from pydantic import BaseModel
 from dataclasses import dataclass
-from geometricspace import ManifoldPoint
-from geometricexception import GeometricException
+from manifolds.geometricspace import ManifoldPoint
+from manifolds.geometricexception import GeometricException
 
 
 @dataclass

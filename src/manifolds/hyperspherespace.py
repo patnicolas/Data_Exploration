@@ -6,10 +6,10 @@ from geomstats.geometry.hypersphere import Hypersphere, HypersphereMetric
 from typing import NoReturn, List
 import numpy as np
 
-from spacevisualization import VisualizationParams, SpaceVisualization
-from geometricspace import GeometricSpace, ManifoldPoint
+from manifolds.spacevisualization import VisualizationParams, SpaceVisualization
+from manifolds.geometricspace import GeometricSpace, ManifoldPoint
 import geomstats.backend as gs
-from geometricexception import GeometricException
+from manifolds.geometricexception import GeometricException
 
 """
     Define the Hypersphere geometric space as a 2D manifold in a 3D Euclidean space.
