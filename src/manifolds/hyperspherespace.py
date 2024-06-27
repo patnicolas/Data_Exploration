@@ -25,7 +25,7 @@ from manifolds.geometricexception import GeometricException
 
 
 class HypersphereSpace(GeometricSpace):
-    def __init__(self, equip: bool = False, intrinsic: bool = False):
+    def __init__(self, equip: bool = False, intrinsic: bool = False) -> None:
         dim = 2
         super(HypersphereSpace, self).__init__(dim, intrinsic)
         GeometricSpace.manifold_type = 'Hypersphere'

@@ -45,7 +45,7 @@ class GeometricSpace(ABC):
         "SPD2",
     ]
 
-    def __init__(self, dimension: int, intrinsic: bool = False):
+    def __init__(self, dimension: int, intrinsic: bool = False) -> None:
         self.dimension = dimension
         self.intrinsic = intrinsic
 

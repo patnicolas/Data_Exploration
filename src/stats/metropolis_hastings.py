@@ -24,7 +24,7 @@ class MetropolisHastings(MCMC):
                  proposal: ProposalDistribution,
                  num_iterations: int,
                  burn_in_ratio: float,
-                 sigma_delta: float = 0.2):
+                 sigma_delta: float = 0.2) -> None:
         assert 2 <= num_iterations <= 100000, f'Number of iterations {num_iterations} is out of bounds [2, 10000]'
         assert 0.0 < sigma_delta < 1.0, f'Sigma differential {sigma_delta} is out of bounds ]0.0, 1.0['
         assert 0.0 <= burn_in_ratio <= 0.5, f'Burn-in ratio {burn_in_ratio} is out of bounds [0.0, 0.5]'

@@ -18,7 +18,7 @@ def init() -> NoReturn:
 
 
 class SHAPException(Exception):
-    def __init__(self, comment: AnyStr):
+    def __init__(self, comment: AnyStr) -> None:
         super(Exception, self).__init__(comment)
 
 

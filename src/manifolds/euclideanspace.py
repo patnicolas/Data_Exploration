@@ -23,8 +23,7 @@ from spacevisualization import VisualizationParams, SpaceVisualization
 """
 
 class EuclideanSpace(GeometricSpace):
-
-    def __init__(self, dimension: int):
+    def __init__(self, dimension: int) -> None:
         super(EuclideanSpace, self).__init__(dimension)
         self.space = Euclidean(dim=self.dimension, equip=False)
         GeometricSpace.manifold_type = 'Euclidean'

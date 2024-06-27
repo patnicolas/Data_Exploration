@@ -23,7 +23,7 @@ from manifolds.geometricexception import GeometricException
 
 
 class RiemannianConnection(object):
-    def __init__(self, space: LevelSet, manifold_type: AnyStr):
+    def __init__(self, space: LevelSet, manifold_type: AnyStr) -> None:
         self.riemannian_metric = RiemannianConnection.__get_metric(space)
         self.manifold_descriptor = f'{manifold_type}\nDimension: {space.dim}\nShape: {space.shape}' \
                                    f'\nCoordinates type: {space.default_coords_type}'

@@ -23,7 +23,7 @@ from geometricexception import GeometricException
 
 
 class FunctionSpace(HilbertSphere):
-    def __init__(self, num_domain_samples: int):
+    def __init__(self, num_domain_samples: int) -> None:
         if num_domain_samples < 2:
             raise GeometricException(f'Number of samples {num_domain_samples} should be > 1')
 

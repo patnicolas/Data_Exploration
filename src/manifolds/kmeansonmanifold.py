@@ -46,7 +46,7 @@ class KMeansOnManifold(object):
     random_uniform_label = 'random_uniform'
     clustered_random_uniform_label = 'constrained_random_uniform'
 
-    def __init__(self, num_samples: int, num_clusters: int, random_gen: AnyStr = 'random_von_mises_fisher'):
+    def __init__(self, num_samples: int, num_clusters: int, random_gen: AnyStr = 'random_von_mises_fisher') -> None:
         """
         Constructor for the evaluation of k-means algorithm on Euclidean space and Riemann manifold (Hypersphere)
         :param num_samples: Number of random samples

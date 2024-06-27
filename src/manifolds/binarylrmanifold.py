@@ -74,7 +74,7 @@ that the mean value of cross-validation score for randomly generated SPD matrice
 
 
 class BinaryLRManifold(object):
-    def __init__(self, n_features: int, n_samples: int):
+    def __init__(self, n_features: int, n_samples: int) -> None:
         """
         Constructor for the Binary Logistic Regression classifier
         @param n_features: Number of features
