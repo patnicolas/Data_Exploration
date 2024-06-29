@@ -23,12 +23,10 @@ class TestGeometricSpace(unittest.TestCase):
         visualParams = VisualizationParams("Data on Hypersphere", "locations", (8, 8), style, "3d")
         HypersphereSpace.show(visualParams, data)
 
-    @unittest.skip('ignore')
+    # @unittest.skip('ignore')
     def test_tangent_vector(self):
-        from geometricspace import GeometricSpace
+        from manifolds.geometricspace import GeometricSpace
 
-        filename = '../../../data/hypersphere_data_1.txt'
-        data = GeometricSpace.load_csv(filename)
         manifold = HypersphereSpace(True)
         samples = manifold.sample(3)
         manifold_points = [
@@ -46,7 +44,7 @@ class TestGeometricSpace(unittest.TestCase):
 
     @unittest.skip('ignore')
     def test_show_tangent_vector_geodesics(self):
-        from geometricspace import GeometricSpace
+        from manifolds.geometricspace import GeometricSpace
 
         manifold = HypersphereSpace(True)
         samples = manifold.sample(2)

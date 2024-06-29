@@ -105,8 +105,8 @@ class HypersphereSpace(GeometricSpace):
     def intrinsic_to_extrinsic(self, manifold_pts: List[ManifoldPoint]) -> List[ManifoldPoint]:
         """
         Convert the intrinsic coordinates of a list of manifold points into extrinsic coordinates
-        :param manifold_pts List of manifold which coordinates/location has to be converted
-        :return manifold points which location is defined as extrinsic coordinates
+        @param manifold_pts List of manifold which coordinates/location has to be converted
+        @return manifold points which location is defined as extrinsic coordinates
         """
         return [ManifoldPoint(
             id=pt.id,
