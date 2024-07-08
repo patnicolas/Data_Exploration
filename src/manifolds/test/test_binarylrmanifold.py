@@ -15,6 +15,7 @@ class BinaryLRManifoldTest(unittest.TestCase):
         shape = train_data.shape()
         print(f'First 2 data points: {train_data.X[:2]}')
         print(f'First 2 labels: {train_data.y[:2]}')
+        self.assertTrue(len(shape) > 0)
 
 
     def test_eval_spd_logistic_euclidean(self):

@@ -3,7 +3,6 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from manifolds.hyperspherespace import HypersphereSpace
 import geomstats.backend as gs
-import matplotlib.pyplot as plt
 from typing import NoReturn, List
 from manifolds.manifoldpoint import ManifoldPoint
 
@@ -27,7 +26,7 @@ class GeometricDistribution(object):
         """
         self.manifold = HypersphereSpace(True)
 
-    def show_points(self, num_pts: int, tgt_vector: List[float] = _ZERO_TGT_VECTOR) -> NoReturn:
+    def show_points(self, num_pts: int, tgt_vector: List[float] = _ZERO_TGT_VECTOR) -> int:
         """
         Display the data points on a manifold (Hypersphere). The tangent vector is displayed if
         is not defined as the extrinsic origin zero_tgt_vector = [0.0, 0.0, 0.0]
@@ -35,13 +34,15 @@ class GeometricDistribution(object):
         @type num_pts: int
         @param tgt_vector: Tangent vector extrinsic coordinate
         @type tgt_vector: List of float
-        @return: None
+        @return: Number of points from exponential map
+        @rtype: int
         """
         manifold_pts = self._random_manifold_points(num_pts, tgt_vector)
         exp_map = self.manifold.tangent_vectors(manifold_pts)
         for v, end_pt in exp_map:
             print(f'Tangent vector: {v} End point: {end_pt}')
         self.manifold.show_manifold(manifold_pts)
+        return len(exp_map)
 
     """ --------------------  Protected Helper Method ---------------------------  """
     def _random_manifold_points(self, num_pts: int, tgt_vector: List[float]) -> List[ManifoldPoint]:
@@ -70,4 +71,4 @@ beta_dist = BetaHypersphere()
 num_points = 10
 num_pdfs = 200
 beta_dist.show_points(num_points)
-# beta_dist.show_distribution(num_pdfs, num_points)
+beta_dist.show_distribution(num_pdfs, num_points)

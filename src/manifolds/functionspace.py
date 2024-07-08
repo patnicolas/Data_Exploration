@@ -15,7 +15,7 @@ from geometricexception import GeometricException
 """
     Class wrapper for the Function space using the Hilbert Sphere. The constructor generates the
     sample for the domain associated with the functions. The Hilbert domain is defined as [0, 1].
-    This class inherit the Hilbert Sphere defined in the Geomstats module
+    This class inherit the Hilbert Sphere defined in the Geomstats module.
     
     :param num_domain_samples Number of samples (equidistant) used to represent the Hilbert interval
     Throw a GeometricException if the number of samples < 2

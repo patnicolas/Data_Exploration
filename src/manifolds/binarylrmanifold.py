@@ -64,7 +64,7 @@ class SPDTestData:
 
 
 """
-Class that wraps the evaluation of Geomstats functions to evaluate the binary logistic regression 
+Class that wraps the evaluation of Geomstats functions related to the binary logistic regression 
 on a manifold as the group of Symmetric Positive Definite (SPD) matrices and compare with the 
 default logistic regression on the Euclidean space.
 

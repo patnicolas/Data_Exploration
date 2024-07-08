@@ -1,5 +1,5 @@
 Exploration and analysis of data on manifold
-Patrick Nicolas - Oct 2023 - Apr 2024
+Patrick Nicolas - Oct 2023 - Aug 2024
 
 ![Analysis of data on manifolds](images/Data_Exploration_Banner.png)
 
@@ -13,33 +13,58 @@ Patrick Nicolas - Oct 2023 - Apr 2024
 [Newsletter: Geometric Learning in Python](https://www.linkedin.com/newsletters/geometric-learning-in-python-7175924072638263296/)     
 
 
-
 ## Environment
-| Library      | Version |
-|:-------------|:--------|
-| Python       | 3.10.10 |
-| SymPy        | 1.12    |
-| Numpy        | 1.26.3  |
-| Pydantic     | 2.4.1   |
-| Shap         | 0.43.0  |
-| Torch        | 2.1.1   |
-| Scikit-learn | 1.3.2   |
- | Geomstats   | 2.7.0   |
+| Library       | Version |
+|:--------------|:--------|
+| Python        | 3.10.10 |
+| SymPy         | 1.12    |
+| Numpy         | 1.26.3  |
+| Pydantic      | 2.4.1   |
+| Shap          | 0.43.0  |
+| Torch         | 2.1.1   |
+| Scikit-learn  | 1.3.2   |
+| Geomstats     | 2.7.0   |
 
 
 ## Packages
 **manifolds** Differential geometry concepts such as Geodesics, Vector fields, Tangent space, exponential and     
               Logarithm maps, contravariant and covariant vector fields...  
-     
+- _BinaryLRManifold_    Evaluation of Geomstats functions related to the binary logistic regression 
+on a manifold as the group of Symmetric Positive Definite (SPD) matrices.
+- _KMeansOnManifold_ Evaluation of k-means algorithm on Euclidean space using Scikit-learn library and
+on the hypersphere (as Riemann manifold) using Geomstats library.
+The evaluation relies on synthetic clustered data on hypersphere.
+- _HypersphereSpace_ Definition of the Hypersphere geometric space as a 2D manifold in a 3D Euclidean space.
+    The key functions are:
+    1) Select uniform data point on the hypersphere
+    2) Define a tangent vector from a vector in Euclidean space and a
+                     location on the hypersphere
+    3) Display the hypersphere and related components in 3D
+- _FunctionSpace_     Class wrapper for the Function space using the Hilbert Sphere. The constructor generates the
+    sample for the domain associated with the functions. The Hilbert domain is defined as [0, 1].
+    This class inherit the Hilbert Sphere defined in the Geomstats module.
+- _RiemannianConnection_ Creation a formal Riemann connection with associated metric from a Manifold or Level set.
+    The metric is automatically selected from the type of manifold. This class is a wrapper of 
+    the Connection, Manifold and RiemannianMetric classes in Geomstats library.
+    Initialization sequence:   Manifold (space) => Metric => Connection.
+- _HyperspherePCA_ Definition of principal components analysis on a tangent space of a hypersphere.
+- _EuclideanSpace_ Implementation of basic random sampling and visualization methods on Euclidean space.
+
+**stats** Basic functions related to the Markov Chain Monte Carlo algorithms
+- _metropolis_hastings_ Implementation of Metropolis Hastings algorithm.
+- - _SHAPEval_ Evaluation of the various SHAP diagrams such as Decision, Summary, Force and Dependency plots.
+
 **diffgeometry**  Differential operators, Gradient, Divergence, Curl and transforms such as Laplace and Fourier     
                   using SymPy Python library  
         
+**informationgeometry** Riemann geometry, probabilistic concepts such as Fisher Information Matrix
+
 **stats** Statistics for validation      
      
 **util**  Utilities for HTTP server, Logging, I/O, Plotting...  
      
 
-## Differential Geometry
+## Differential Geometry Concepts
 
 ### Challenges 
 
@@ -55,9 +80,10 @@ Data scientists face challenges when building deep learning models that can be a
      
 **Representation dependence**: The performance of many learning algorithms is very _sensitive to the choice of representation_ (i.e. z-normalization impact on predictors).      
 
-**Generative modeling**    
+**Generative modeling**
 Generative modeling includes techniques such as auto-encoders, generative adversarial networks (GANs), Markov chains, transformers, and their various derivatives.
 Creating generative models presents several specific challenges beyond plain vanilla deep learning models for data scientists and engineers, primarily due to the complexity of modeling and generating data that accurately reflects real-world distributions. The challenges that can be addressed with differential geometry include:    
+
 **Performance evaluation**: Unlike supervised learning models, assessing the performance of generative models is not straightforward. _Traditional metrics like accuracy do not apply_, leading to the development of alternative metrics such as the **Frechet Inception Distance** (FID) or Inception Score, which have their limitations.     
     
 **Latent space interpretability**: Understanding and interpreting the latent space of generative models, where the model learns a _compressed representation of the data, can be challenging_ but is crucial for controlling and improving the generation process.    
@@ -99,8 +125,13 @@ There are numerous open-source Python libraries available, with a variety of foc
     
 **Geomstats**: Designed for performing computations and statistical analysis on nonlinear (Riemannian) manifolds. Visit https://geomstats.github.io/ for more details.     
     
-**DFormPy**: A PyPi project focused on visualization and differential forms is available at https://pypi.org/project/dformpy/     
+**DFormPy**: A PyPi project focused on visualization and differential forms is available at https://pypi.org/project/dformpy/
 
+**PyG**: PyTorch Geometric is a library built on PyTorch dedicated to geometric deep learning and graph neural networks https://pytorch-geometric.readthedocs.io/en/latest/
+
+**PyRiemann**: A package based on scikit-learn provides a high-level interface for processing and classification of multivariate data through the Riemannian geometry of symmetric positive definite matrices https://pyriemann.readthedocs.io/en/latest/
+
+**PyManOpt**: A library for optimization and automatic differentiation on Riemannian manifolds https://pymanopt.org/
 
 
 
