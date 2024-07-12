@@ -1,19 +1,13 @@
 __author__ = "Patrick Nicolas"
 __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
-import matplotlib
-import matplotlib.colors as clrs
-import matplotlib.image as mpg
-import matplotlib.patches as patch
 import matplotlib.pyplot as plt
 import geomstats.backend as gs
 
-from mpl_toolkits.mplot3d import Axes3D
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
 from typing import Tuple, NoReturn, AnyStr, List
 import numpy as np
 import geomstats.visualization as visualization
-from pydantic import BaseModel
 from dataclasses import dataclass
 from manifolds.geometricspace import ManifoldPoint
 from manifolds.geometricexception import GeometricException

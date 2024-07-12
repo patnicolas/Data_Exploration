@@ -54,21 +54,3 @@ class GeometricDistribution(object):
                 tgt_vector=tgt_vector,
                 geodesic=False) for index, sample in enumerate(p)
         ]
-
-
-
-
-
-"""
-normal_dist = NormalDistribution()
-num_points = 2
-num_pdfs = 40
-normal_dist.show_points(num_points, [0.4, 0.7, 0.2])
-normal_dist.show_distribution(num_pdfs, num_points)
-"""
-
-beta_dist = BetaHypersphere()
-num_points = 10
-num_pdfs = 200
-beta_dist.show_points(num_points)
-beta_dist.show_distribution(num_pdfs, num_points)

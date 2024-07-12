@@ -17,11 +17,18 @@ text_loc: Location of the text (start of the arrow)
 
 @dataclass
 class PlotAnnotation:
+    from matplotlib.axes import Axes
+
     text: AnyStr
     arrow_loc: Tuple[float, float]
     text_loc: Tuple[float, float]
 
-    def show(self, ax) -> NoReturn:
+    def show(self, ax: Axes) -> NoReturn:
+        """
+        Display the annotation with the parameters defined at member of the PlotAnnotation data class
+        @param ax: Axes for displaying the annotation
+        @type ax: axes.Axes
+        """
         ax.annotate(
             text=self.text,
             xy=self.arrow_loc,
@@ -30,8 +37,9 @@ class PlotAnnotation:
 
 
 """
-    Wraps the mechanism to annotate 2D plots 
+    Wraps the mechanism to annotate 2D/scatter plots 
 """
+
 
 class AnnotatedPlots(object):
     def __init__(self, _x: np.array, _y: np.array) -> None:
@@ -46,6 +54,11 @@ class AnnotatedPlots(object):
         self.y = _y
 
     def plot(self, plt_annotation: Optional[PlotAnnotation] = None) -> NoReturn:
+        """
+        Display a 2D plot with x, y values and optional annotation.
+        @param plt_annotation: Descriptor for the annotation
+        @type plt_annotation: Optional PlotAnnotation
+        """
         import matplotlib.pyplot as plt
 
         ax = plt.axes()
