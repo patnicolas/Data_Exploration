@@ -2,12 +2,16 @@ __author__ = "Patrick Nicolas"
 __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 import numpy as np
+import matplotlib.pyplot as plt
+
+
 
 """
 Generate symmetric positive definite matrices/manifolds with Gaussian distribution
 """
 
-class SPDMatricesGenerator(object):
+
+class SPDMatricesDataset(object):
     def __init__(self, num_spds: int, num_channels: int) -> None:
         self.num_spds = num_spds
         self.num_channels = num_channels
@@ -22,15 +26,53 @@ class SPDMatricesGenerator(object):
         spd_matrices_1 = self.__make_spd_matrices(evals_low_1)
         spd_matrices_2 = self.__make_spd_matrices(evals_low_2)
 
-        spd_matrices_stack_1 = spd_matrices_1, self.target
-        spd_matrices_stack_2 = spd_matrices_2, self.target
-
         return [
             (spd_matrices_1, self.target),
             (spd_matrices_2, self.target),
             self.__make_gaussian_blobs(class_separation_ratio_1),
             self.__make_gaussian_blobs(class_separation_ratio_2)
         ]
+
+    @staticmethod
+    def plot_datasets(
+            features: np.array,
+            target: np.array,
+            dataset_size: int,
+            plot_index: int,
+            index: int) -> (np.array, np.array, np.array):
+        from sklearn.model_selection import train_test_split
+
+        ax = plt.subplot(dataset_size, plot_index, index, projection='3d')
+
+        in_train, in_test, target_train, target_test = train_test_split(
+            features, target, test_size=0.2, random_state=42
+        )
+
+        ax.scatter(
+            x=in_train[:, 0, 0],
+            y=in_train[:, 0, 1],
+            z=in_train[:, 1, 1],
+            c=target_train,
+            alpha=0.7,
+            edgecolor='k')
+
+        ax.scatter(
+            x=in_test[:, 0, 0],
+            y=in_test[:, 0, 1],
+            z=in_test[:, 1, 1],
+            c=target_train,
+            alpha=None,
+            edgecolor='k')
+
+        ax.set_xticklabels(())
+        ax.set_yticklabels(())
+        ax.set_zticklabels(())
+
+        spd_dataset_limits = SPDDatasetLimits(features)
+        spd_dataset_limits.set_limits(ax)
+        return spd_dataset_limits.create_axis_values()
+
+
 
     """ --------------------  Private Helper Methods ------------------------ """
     def __make_spd_matrices(self, evals_low_2: int) -> np.array:

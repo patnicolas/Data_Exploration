@@ -3,7 +3,7 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from manifolds.hyperspherespace import HypersphereSpace
 import geomstats.backend as gs
-from typing import NoReturn, List
+from typing import List
 from manifolds.manifoldpoint import ManifoldPoint
 
 """

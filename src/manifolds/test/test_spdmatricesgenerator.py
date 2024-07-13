@@ -1,15 +1,15 @@
 import unittest
 
-from manifolds.spdmatricesgenerator import SPDMatricesGenerator
+from manifolds.spdmatricesdataset import SPDMatricesDataset
 
 
-class SPDMatricesGeneratorTest(unittest.TestCase):
+class SPDMatricesDatasetTest(unittest.TestCase):
 
     @unittest.skip('Ignore')
     def test_init(self):
         n_spd_matrices = 48
         n_channels = 4
-        spd_matrices_generator = SPDMatricesGenerator(n_spd_matrices, n_channels)
+        spd_matrices_generator = SPDMatricesDataset(n_spd_matrices, n_channels)
         size_target = len(spd_matrices_generator.target)
         print(size_target)
         self.assertEqual(size_target, n_spd_matrices*2)
@@ -21,7 +21,7 @@ class SPDMatricesGeneratorTest(unittest.TestCase):
     def test_call(self):
         n_spd_matrices = 48
         n_channels = 4
-        spd_matrices_generator = SPDMatricesGenerator(n_spd_matrices, n_channels)
+        spd_matrices_generator = SPDMatricesDataset(n_spd_matrices, n_channels)
         evals_lows_1 = 13
         evals_lows_2 = 11
         class_sep_ratio_1 = 1.0
@@ -37,3 +37,6 @@ class SPDMatricesGeneratorTest(unittest.TestCase):
         self.assertEqual(len(target), n_spd_matrices * 4)
         print(len([y for y in target if y == 1.0]))
         self.assertEqual(len([y for y in target if y == 1.0]), len(target) / 2)
+
+if __name__ == '__main__':
+    unittest.main()
