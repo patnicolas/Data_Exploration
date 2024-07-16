@@ -2,7 +2,10 @@ __author__ = "Patrick Nicolas"
 __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 import numpy as np
-from manifolds.spddatasetlimits import SPDDatasetLimits
+from classifiers.spddatasetlimits import SPDDatasetLimits
+from typing import Tuple
+from classifiers.spdtrainingdata import SPDTrainingData
+from matplotlib.axes import Axes
 
 """
 Generate symmetric positive definite matrices/manifolds with Gaussian distribution
@@ -32,17 +35,20 @@ class SPDMatricesDataset(object):
         ]
 
     @staticmethod
-    def plot_datasets(features: np.array, target: np.array) -> (np.array, np.array, np.array):
+    def plot(features: np.array, target: np.array) -> (np.array, np.array, np.array):
         from sklearn.model_selection import train_test_split
         import matplotlib.pyplot as plt
 
-        dataset_size = len(features[0])
-        in_train, in_test, target_train, target_test = train_test_split(
+        train_X, test_X, train_y, test_y = train_test_split(
             features,
             target,
             test_size=0.3,
             random_state=42
         )
+        spd_training_data = SPDTrainingData(train_X, test_X, train_y, test_y)
+
+        """
+
         x = in_train[:, 0, 0]
         y = in_train[:, 0, 1]
         z = in_train[:, 1, 1]
@@ -64,14 +70,46 @@ class SPDMatricesDataset(object):
         x = in_test[:, 0, 0],
         y = in_test[:, 0, 1],
         z = in_test[:, 1, 1]
-        sc2 = ax.scatter3D(x, y, z, c=target_test, marker='^')
+        ax.scatter3D(x, y, z, c=target_test, marker='^')
         # fig.colorbar(sc2, ax=ax, shrink=0.3, aspect=5)
+
+        """
+        fig = plt.figure(figsize=(24, 14))
+        ax = SPDMatricesDataset.create_scatter_plots(spd_training_data, (1, 1), fig)
 
         spd_dataset_limits = SPDDatasetLimits(features)
         spd_dataset_limits.set_limits(ax)
-
-        plt.show()
         return spd_dataset_limits.create_axis_values()
+
+    @staticmethod
+    def create_scatter_plots(
+            spd_training_data: SPDTrainingData,
+            plot_indices: Tuple[int, int],
+            fig) -> Axes:
+        import matplotlib.pyplot as plt
+
+        dataset_size = len(spd_training_data.train_X[0])
+        ax = plt.subplot(dataset_size, plot_indices[0], plot_indices[1], projection='3d')
+        my_cmap = plt.get_cmap('hsv')
+
+        ax.grid(b=True, color='grey', linestyle='-.', linewidth=0.3, alpha=0.2)
+        x = spd_training_data.train_X[:, 0, 0]
+        y = spd_training_data.train_X[:, 0, 1]
+        z = spd_training_data.train_X[:, 1, 1]
+
+        sc = ax.scatter3D(x, y, z, c=spd_training_data.train_y, cmap=my_cmap)
+
+        plt.title("Input data")
+        ax.set_xlabel('X-axis', fontweight='bold')
+        ax.set_ylabel('Y-axis', fontweight='bold')
+        ax.set_zlabel('Z-axis', fontweight='bold')
+        fig.colorbar(sc, ax=ax, shrink=0.3, aspect=5)
+
+        x = spd_training_data.test_X[:, 0, 0],
+        y = spd_training_data.test_X[:, 0, 1],
+        z = spd_training_data.test_X[:, 1, 1]
+        ax.scatter3D(x, y, z, c=spd_training_data.test_y, marker='^')
+        return ax
 
     """ --------------------  Private Helper Methods ------------------------ """
 

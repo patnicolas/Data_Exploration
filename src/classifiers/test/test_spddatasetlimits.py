@@ -1,7 +1,7 @@
 import unittest
 
 import numpy as np
-from manifolds.spddatasetlimits import SPDDatasetLimits
+from classifiers.spddatasetlimits import SPDDatasetLimits
 
 
 class SPDDdatasetLimitsTest(unittest.TestCase):

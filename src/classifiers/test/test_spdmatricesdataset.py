@@ -1,6 +1,6 @@
 import unittest
 
-from manifolds.spdmatricesdataset import SPDMatricesDataset
+from classifiers.spdmatricesdataset import SPDMatricesDataset
 
 
 class SPDMatricesDatasetTest(unittest.TestCase):
