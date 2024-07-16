@@ -1,41 +1,36 @@
 import unittest
 
 from classifiers.spdmatricesdataset import SPDMatricesDataset
+from classifiers.spdmatricesconfig import SPDMatricesConfig
 
 
 class SPDMatricesDatasetTest(unittest.TestCase):
 
     @unittest.skip('Ignore')
     def test_init(self):
-        n_spd_matrices = 48
-        n_channels = 4
-        spd_matrices_generator = SPDMatricesDataset(n_spd_matrices, n_channels)
+        spd_matrices_config = SPDMatricesDatasetTest.__instance()
+        spd_matrices_generator = SPDMatricesDataset(spd_matrices_config)
         size_target = len(spd_matrices_generator.target)
         print(size_target)
-        self.assertEqual(size_target, n_spd_matrices*2)
-        print(spd_matrices_generator.target[0:n_spd_matrices])
-        print(spd_matrices_generator.target[n_spd_matrices:])
-        self.assertTrue(all(spd_matrices_generator.target[0:n_spd_matrices]) == 0)
-        self.assertTrue(all(spd_matrices_generator.target[n_spd_matrices:0]) == 1)
+        self.assertEqual(size_target, spd_matrices_config.n_spd_matrices*2)
+        print(spd_matrices_generator.target[0:spd_matrices_config.n_spd_matrices])
+        print(spd_matrices_generator.target[spd_matrices_config.n_spd_matrices:])
+        self.assertTrue(all(spd_matrices_generator.target[0:spd_matrices_config.n_spd_matrices]) == 0)
+        self.assertTrue(all(spd_matrices_generator.target[spd_matrices_config.n_spd_matrices:0]) == 1)
 
     @unittest.skip('Ignore')
-    def test_call(self):
-        n_spd_matrices = 48
-        n_channels = 4
-        spd_matrices_dataset = SPDMatricesDataset(n_spd_matrices, n_channels)
-        evals_lows_1 = 13
-        evals_lows_2 = 11
-        class_sep_ratio_1 = 1.0
-        class_sep_ratio_2 = 0.5
+    def test_create(self):
+        spd_matrices_config = SPDMatricesDatasetTest.__instance()
 
-        datasets = spd_matrices_dataset(evals_lows_1, evals_lows_2, class_sep_ratio_1, class_sep_ratio_2)
+        spd_matrices_dataset = SPDMatricesDataset(spd_matrices_config)
+        datasets = spd_matrices_dataset.create()
         features, target = datasets[0]
-        self.assertEqual(len(target), n_spd_matrices * 2)
+        self.assertEqual(len(target), spd_matrices_config.n_spd_matrices * 2)
         print(len([y for y in target if y == 1.0]))
         self.assertEqual(len([y for y in target if y == 1.0]), len(target) / 2)
 
         features, target = datasets[2]
-        self.assertEqual(len(target), n_spd_matrices * 4)
+        self.assertEqual(len(target), spd_matrices_config.n_spd_matrices * 4)
         print(len([y for y in target if y == 1.0]))
         self.assertEqual(len([y for y in target if y == 1.0]), len(target) / 2)
 
@@ -45,17 +40,16 @@ class SPDMatricesDatasetTest(unittest.TestCase):
     def test_plot_datasets(self):
         import matplotlib.pyplot as plt
 
-        n_spd_matrices = 48
-        n_channels = 4
-        spd_matrices_dataset = SPDMatricesDataset(n_spd_matrices, n_channels)
+        spd_matrices_config = SPDMatricesDatasetTest.__instance()
+        spd_matrices_dataset = SPDMatricesDataset(spd_matrices_config)
         evals_lows_1 = 13
         evals_lows_2 = 11
         class_sep_ratio_1 = 1.0
         class_sep_ratio_2 = 0.5
 
-        datasets = spd_matrices_dataset(evals_lows_1, evals_lows_2, class_sep_ratio_1, class_sep_ratio_2)
+        datasets = spd_matrices_dataset.create()
         features, target = datasets[0]
-        SPDMatricesDataset.plot_datasets(features, target)
+        SPDMatricesDataset.plot(features, target)
         plt.show()
 
 
@@ -144,7 +138,23 @@ class SPDMatricesDatasetTest(unittest.TestCase):
         # spd_dataset_limits.set_limits(ax)
         plt.show()
 
+    @staticmethod
+    def __instance() -> SPDMatricesConfig:
+        n_spd_matrices = 48
+        n_channels = 4
+        evals_lows_1 = 13
+        evals_lows_2 = 11
+        class_sep_ratio_1 = 1.0
+        class_sep_ratio_2 = 0.5
 
+        return SPDMatricesConfig(
+            n_spd_matrices,
+            n_channels,
+            evals_lows_1,
+            evals_lows_2,
+            class_sep_ratio_1,
+            class_sep_ratio_2
+        )
 
 
 if __name__ == '__main__':

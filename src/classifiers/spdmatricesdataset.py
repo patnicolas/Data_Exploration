@@ -5,7 +5,9 @@ import numpy as np
 from classifiers.spddatasetlimits import SPDDatasetLimits
 from typing import Tuple
 from classifiers.spdtrainingdata import SPDTrainingData
+from classifiers.spdmatricesconfig import SPDMatricesConfig
 from matplotlib.axes import Axes
+
 
 """
 Generate symmetric positive definite matrices/manifolds with Gaussian distribution
@@ -13,25 +15,22 @@ Generate symmetric positive definite matrices/manifolds with Gaussian distributi
 
 
 class SPDMatricesDataset(object):
-    def __init__(self, num_spds: int, num_channels: int) -> None:
-        self.num_spds = num_spds
-        self.num_channels = num_channels
-        self.target = np.concatenate([np.zeros(num_spds), np.ones(num_spds)])
+    def __init__(self, spd_matrices_config: SPDMatricesConfig) -> None:
+        self.spd_matrices_config = spd_matrices_config
+        self.target = np.concatenate([
+            np.zeros(spd_matrices_config.n_spd_matrices), np.ones(spd_matrices_config.n_spd_matrices)
+        ])
         self.rs = np.random.RandomState(42)
 
-    def __call__(self,
-                 evals_low_1: int,
-                 evals_low_2: int,
-                 class_separation_ratio_1: float,
-                 class_separation_ratio_2: float) -> np.array:
-        spd_matrices_1 = self.__make_spd_matrices(evals_low_1)
-        spd_matrices_2 = self.__make_spd_matrices(evals_low_2)
+    def create(self) -> np.array:
+        spd_matrices_1 = self.__make_spd_matrices(self.spd_matrices_config.evals_lows_1)
+        spd_matrices_2 = self.__make_spd_matrices(self.spd_matrices_config.evals_lows_2)
 
         return [
             (spd_matrices_1, self.target),
             (spd_matrices_2, self.target),
-            self.__make_gaussian_blobs(class_separation_ratio_1),
-            self.__make_gaussian_blobs(class_separation_ratio_2)
+            self.__make_gaussian_blobs(self.spd_matrices_config.class_sep_ratio_1),
+            self.__make_gaussian_blobs(self.spd_matrices_config.class_sep_ratio_2)
         ]
 
     @staticmethod

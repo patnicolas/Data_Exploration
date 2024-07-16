@@ -1,3 +1,6 @@
+__author__ = "Patrick Nicolas"
+__copyright__ = "Copyright 2023, 2024  All rights reserved."
+
 from typing import Tuple, NoReturn, AnyStr
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
@@ -6,13 +9,12 @@ from classifiers.spddatasetlimits import SPDDatasetLimits
 from classifiers.spdtrainingdata import SPDTrainingData
 from functools import partial
 from enum import Enum
-from dataclasses import dataclass
-
 
 
 class SPDMetric(Enum):
     riemann = 'riemann'
     euclid = 'euclid'
+
 
 """
 @partial(np.vectorize, excluded=['clf'])
@@ -21,7 +23,6 @@ def get_probability(cov_00: np.array, cov_01: np.array, cov_11: np.array, clf):
     u = cov[np.newaxis, ...]
     return clf.predict_proba(u)[0, 1]
 """
-
 
 
 class SPDMatricesClassifier(object):
@@ -69,26 +70,28 @@ class SPDMatricesClassifier(object):
         )
         return ax
 
+    """ -----------------   Helper methods  ----------------------------- """
 
     def __create_contour(self,
-                       ax: Axes,
-                       spd_dataset_limits: SPDDatasetLimits) -> NoReturn:
+                         ax: Axes,
+                         spd_dataset_limits: SPDDatasetLimits) -> NoReturn:
         features = self.spd_training_data.get_features()
         axis_1, axis_2, axis_3 = spd_dataset_limits.create_axis_values()
+
         _x, _y = np.meshgrid(axis_1, axis_2)
-        _z = features[:, 1, 1].mean()*np.ones_like(_x)
+        _z = features[:, 1, 1].mean() * np.ones_like(_x)
         _z = SPDMatricesClassifier.get_probability(_x, _y, _z, self.classifier)
         _z = np.ma.masked_where(~np.isfinite(_z), _z)
         ax.contour(_x, _y, _z, zdir='z', offset=spd_dataset_limits.in_z_min)
 
         _x, _z = np.meshgrid(axis_1, axis_3)
-        _y = features[:, 0, 1].mean()*np.ones_like(_x)
+        _y = features[:, 0, 1].mean() * np.ones_like(_x)
         _y = SPDMatricesClassifier.get_probability(_x, _y, _z, clf=self.classifier)
         _y = np.ma.masked_where(~np.isfinite(_y), _y)
         ax.contour(_x, _y, _z, zdir='y', offset=spd_dataset_limits.in_y_max)
 
         _y, _z = np.meshgrid(axis_2, axis_3)
-        _x = features[:, 0, 0].mean()*np.ones_like(_y)
+        _x = features[:, 0, 0].mean() * np.ones_like(_y)
         _x = SPDMatricesClassifier.get_probability(_x, _y, _z, clf=self.classifier)
         _x = np.ma.masked_where(~np.isfinite(_y), _y)
         ax.contour(_x, _y, _z, zdir='x', offset=spd_dataset_limits.in_y_min)
