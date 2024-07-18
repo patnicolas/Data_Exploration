@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import numpy as np
 from classifiers.spddatasetlimits import SPDDatasetLimits
 
+
 @dataclass
 class SPDTrainingData:
     train_X: np.array

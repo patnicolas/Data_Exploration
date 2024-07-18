@@ -35,21 +35,15 @@ class SPDMatricesDatasetTest(unittest.TestCase):
         self.assertEqual(len([y for y in target if y == 1.0]), len(target) / 2)
 
 
-
-
     def test_plot_datasets(self):
         import matplotlib.pyplot as plt
 
         spd_matrices_config = SPDMatricesDatasetTest.__instance()
         spd_matrices_dataset = SPDMatricesDataset(spd_matrices_config)
-        evals_lows_1 = 13
-        evals_lows_2 = 11
-        class_sep_ratio_1 = 1.0
-        class_sep_ratio_2 = 0.5
-
         datasets = spd_matrices_dataset.create()
-        features, target = datasets[0]
-        SPDMatricesDataset.plot(features, target)
+        features, target = datasets[2]
+        sp_training_data = SPDMatricesDataset.train_test_data(features, target)
+        SPDMatricesDataset.plot(sp_training_data, features)
         plt.show()
 
 
