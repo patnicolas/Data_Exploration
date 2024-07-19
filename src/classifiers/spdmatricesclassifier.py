@@ -3,7 +3,6 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from typing import Tuple, NoReturn, AnyStr, Optional
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
 from matplotlib.axes import Axes
 import numpy as np
 

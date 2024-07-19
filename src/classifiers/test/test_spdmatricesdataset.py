@@ -42,7 +42,7 @@ class SPDMatricesDatasetTest(unittest.TestCase):
         spd_matrices_dataset = SPDMatricesDataset(spd_matrices_config)
         datasets = spd_matrices_dataset.create()
         features, target = datasets[2]
-        sp_training_data = SPDMatricesDataset.train_test_data(features, target)
+        sp_training_data = SPDMatricesDataset.train_test_data_split(features, target)
         SPDMatricesDataset.plot(sp_training_data, features)
         plt.show()
 
