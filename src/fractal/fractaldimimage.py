@@ -41,8 +41,12 @@ class BoxParameter:
 
 
 """
-
+Implementation of the computation of the Fractal dimension index of a RGB image converted into 256 grey scale
+using the box counting method.
+A fractal dimension is a measure used to describe the complexity of fractal patterns or sets by 
+quantifying the ratio of change in detail relative to the change in scale.
 """
+
 
 class FractalDimImage(object):
     num_grey_levels: int = 256
@@ -72,59 +76,59 @@ class FractalDimImage(object):
         grey_levels = FractalDimImage.num_grey_levels
         plateau_count = 0
         prev_num_measurements = -1  # used to check for plateaus
-        box_params = []
+        trace = []
         max_iters = (image_pixels // 2) + 1
 
         for iter in range(2, max_iters):
             num_boxes = grey_levels // (image_pixels // iter)
-            h = max(1, num_boxes)
+            n_boxes = max(1, num_boxes)
             num_measurements = 0
             eps = iter / image_pixels
             logging.info(f'Iteration: {iter}: {float(iter)/max_iters} %')
 
             for i in range(0, image_pixels, iter):
-                boxes = self.__populate_boxes(i, iter, h)
-                num_measurements += FractalDimImage.__count_num_boxes(boxes, h)
+                boxes = self.__create_boxes(i, iter, n_boxes)
+                num_measurements += FractalDimImage.__profile_boxes(boxes, n_boxes)
 
-            # Detect if the number of measurements has not changed..
+            # Detect if the number of measurements has not changed...
             if num_measurements == prev_num_measurements:
                 plateau_count += 1
                 prev_num_measurements = num_measurements
-            box_params.append(BoxParameter(eps, num_measurements))
+            trace.append(BoxParameter(eps, num_measurements))
 
             # Break from the iteration if the computation is stuck in the same number of measurements
             if plateau_count > FractalDimImage.max_plateau_count:
                 break
 
-        return FractalDimImage.__compute_fractal_dim(box_params), box_params
+        return FractalDimImage.__compute_fractal_dim(trace), trace
 
     """ --------------  Private Helper Methods -----------------  """
 
-    def __populate_boxes(self, i: int, iter: int, h: int) -> List[List]:
-        boxes = [[]] * ((FractalDimImage.num_grey_levels + h - 1) // h)
+    def __create_boxes(self, i: int, iter: int, n_boxes: int) -> List[List]:
+        boxes = [[]] * ((FractalDimImage.num_grey_levels + n_boxes - 1) // n_boxes)
         i_lim = i + iter
         for row in self.image[i: i_lim]:  # boxes that exceed bounds are shrunk to fit
             for pixel in row[i: i_lim]:
-                height = int(pixel // h)  # lowest box is at G_min and each is h gray levels tall
+                height = int(pixel // n_boxes)  # lowest box is at G_min and each is h gray levels tall
                 boxes[height].append(pixel)
         return boxes
 
     @staticmethod
-    def __count_num_boxes(boxes: List[List], h: int) -> float:
+    def __profile_boxes(boxes: List[List[float]], n_boxes: int) -> float:
         # Standard deviation of boxes
         stddev_box = np.sqrt(np.var(boxes, axis=1))
         # Filter out NAN values
         stddev = stddev_box[~np.isnan(stddev_box)]
 
-        nBox_r = 2 * (stddev // h) + 1
+        nBox_r = 2 * (stddev // n_boxes) + 1
         return sum(nBox_r)
 
     @staticmethod
-    def __compute_fractal_dim(box_params: List[BoxParameter]) -> float:
+    def __compute_fractal_dim(trace: List[BoxParameter]) -> float:
         from numpy.polynomial.polynomial import polyfit
 
-        _x = np.array([box_param.log_inv_eps() for box_param in box_params])
-        _y = np.array([box_param.log_measurements() for box_param in box_params])
+        _x = np.array([box_param.log_inv_eps() for box_param in trace])
+        _y = np.array([box_param.log_measurements() for box_param in trace])
         fitted = polyfit(x=_x, y=_y, deg=1, full=False)
         return float(fitted[1])
 
