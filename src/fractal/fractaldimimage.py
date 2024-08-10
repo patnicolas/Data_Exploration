@@ -18,7 +18,7 @@ Data class that wraps box parameters
 @dataclass
 class BoxParameter:
     eps: float
-    measurements: int
+    r: int
 
     def log_inv_eps(self) -> float:
         """
@@ -28,16 +28,16 @@ class BoxParameter:
         """
         return -np.log(self.eps)
 
-    def log_measurements(self) -> float:
+    def log_r(self) -> float:
         """
         Compute the log of number of measurement units
         @return: log(N)
         @rtype: float
         """
-        return np.log(self.measurements)
+        return np.log(self.r)
 
     def __str__(self) -> AnyStr:
-        return f'Eps: {self.eps}, Count: {self.measurements}'
+        return f'Eps: {self.eps}, Count: {self.r}'
 
 
 """
@@ -75,46 +75,63 @@ class FractalDimImage(object):
         image_pixels = self.image.shape[0]  # image shape
         grey_levels = FractalDimImage.num_grey_levels
         plateau_count = 0
-        prev_num_measurements = -1  # used to check for plateaus
+        prev_num_r = -1  # used to check for plateaus
         trace = []
+        # Leverage symmetry of fractal
         max_iters = (image_pixels // 2) + 1
 
         for iter in range(2, max_iters):
+            # Number of box increases along the iteration  (256/n_pixels) * index
             num_boxes = grey_levels // (image_pixels // iter)
             n_boxes = max(1, num_boxes)
-            num_measurements = 0
+            num_r = 0
             eps = iter / image_pixels
             logging.info(f'Iteration: {iter}: {float(iter)/max_iters} %')
 
+            # Populate each box with the pixels, then compute the sum of least sqiare
             for i in range(0, image_pixels, iter):
                 boxes = self.__create_boxes(i, iter, n_boxes)
-                num_measurements += FractalDimImage.__profile_boxes(boxes, n_boxes)
+                num_r += FractalDimImage.__sum_least_squares(boxes, n_boxes)
 
-            # Detect if the number of measurements has not changed...
-            if num_measurements == prev_num_measurements:
+            # Detect if the number of measurements has not changed... then start counting
+            if num_r == prev_num_r:
                 plateau_count += 1
-                prev_num_measurements = num_measurements
-            trace.append(BoxParameter(eps, num_measurements))
+                prev_num_r = num_r
+            trace.append(BoxParameter(eps, num_r))
 
             # Break from the iteration if the computation is stuck in the same number of measurements
             if plateau_count > FractalDimImage.max_plateau_count:
                 break
-
+            # Implement the formula log(N)/log(eps)
         return FractalDimImage.__compute_fractal_dim(trace), trace
+
+    @staticmethod
+    def rgb_to_grey(image_array: np.array) -> np.array:
+        """
+        Convert an RGB image (3 channels) as a numpy array [height x width x 3] into a grey scale image
+        @param image_array: Original RGB image
+        @type image_array: Numpy array
+        @return: Grey scale image
+        @rtype: Numpy array
+        """
+        weights = [0.2989, 0.5870, 0.1140]
+        grey_array = np.dot(image_array[..., : 3], weights)
+        grey_array = np.expand_dims(grey_array, axis=-1)
+        return grey_array
 
     """ --------------  Private Helper Methods -----------------  """
 
-    def __create_boxes(self, i: int, iter: int, n_boxes: int) -> List[List]:
+    def __create_boxes(self, i: int, iter: int, n_boxes: int) -> List[List[np.array]]:
         boxes = [[]] * ((FractalDimImage.num_grey_levels + n_boxes - 1) // n_boxes)
         i_lim = i + iter
-        for row in self.image[i: i_lim]:  # boxes that exceed bounds are shrunk to fit
+        for row in self.image[i: i_lim]:
             for pixel in row[i: i_lim]:
-                height = int(pixel // n_boxes)  # lowest box is at G_min and each is h gray levels tall
+                height = int(pixel // n_boxes)
                 boxes[height].append(pixel)
         return boxes
 
     @staticmethod
-    def __profile_boxes(boxes: List[List[float]], n_boxes: int) -> float:
+    def __sum_least_squares(boxes: List[List[float]], n_boxes: int) -> float:
         # Standard deviation of boxes
         stddev_box = np.sqrt(np.var(boxes, axis=1))
         # Filter out NAN values
@@ -128,7 +145,7 @@ class FractalDimImage(object):
         from numpy.polynomial.polynomial import polyfit
 
         _x = np.array([box_param.log_inv_eps() for box_param in trace])
-        _y = np.array([box_param.log_measurements() for box_param in trace])
+        _y = np.array([box_param.log_r() for box_param in trace])
         fitted = polyfit(x=_x, y=_y, deg=1, full=False)
         return float(fitted[1])
 
@@ -143,9 +160,3 @@ class FractalDimImage(object):
             logging.error(f'Failed to load image {image_path}: {str(e)}')
             return None
 
-    @staticmethod
-    def rgb_to_grey(image_array: np.array) -> np.array:
-        weights = [0.2989, 0.5870, 0.1140]
-        grey_array = np.dot(image_array[..., : 3], weights)
-        grey_array = np.expand_dims(grey_array, axis=-1)
-        return grey_array
