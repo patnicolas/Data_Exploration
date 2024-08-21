@@ -32,6 +32,7 @@ class FractalDimImageTest(unittest.TestCase):
         timeit.timeit(FractalDimImage(image_path_name))
 
 
+    @unittest.skip('Ignore')
     def test_plots(self):
         import numpy as np
         image_path_name = '../../../images/fractal_test_image.jpg'
@@ -55,4 +56,28 @@ class FractalDimImageTest(unittest.TestCase):
         plt.ylabel('Box measurement units')
 
         plt.show()
+
+    def test_pandas(self):
+        import pandas as pd
+        obj = pd.Series([4, 9, 12])
+        print(obj.array)
+        obj = pd.Series([4, 12, 55, 19, 1], index=['l1', 'l2', 'l3', 'l4', 'l5'])
+        print(f'Index: {obj.index} Array: {obj.array}')
+        print(f"obj[l2]:{obj[['l2', 'l4']]}")
+        obj['l2'] = 0
+        print(f"obj[l2]:{obj['l2']}")
+        # Operation
+        print(f'Filter obj[obj< 20]: {obj[obj < 10]}')
+        print(f'Filter obj*3: {obj*3}')
+        # Test if a label or index belongs to a series
+        is_valid = 'l3' in obj
+
+        # Convert a dictionary to a PD Series and back
+        converted_pd = pd.Series({'a': 9, 'b': -3, 'c': 9})
+        print(converted_pd)
+        print(converted_pd.to_dict())
+        obj2 = pd.Series(converted_pd, index=['a', 'b', 'c', 'd'])
+        print(obj2)
+        print(f"Value for index=d:\n {pd.isna(obj2)}")    #a    False b    False c    False  d     True
+
 

@@ -4,7 +4,6 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 from informationgeometry.geometricdistribution import GeometricDistribution
 import geomstats.backend as gs
 import matplotlib.pyplot as plt
-from typing import NoReturn
 
 
 class BetaHypersphere(GeometricDistribution):
