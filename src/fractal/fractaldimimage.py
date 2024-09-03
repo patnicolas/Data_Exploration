@@ -4,7 +4,6 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 from typing import AnyStr, Union, List
 import numpy as np
 import logging
-from tqdm import tqdm
 from dataclasses import dataclass
 
 
