@@ -4,6 +4,18 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 import numpy as np
 from typing import Self, AnyStr, List
 
+"""
+Class that encapsulates the computation of the Fractal Dimension of an 3D object.
+The implementation relies on the simple box counting method for which the size 
+is incrementally decrease and the number of counts increased.
+For simplicity sake, we assume that the object can be fully embedded in a cube.
+
+The class has two constructors:
+- Default constructor with a given 3D Numpy array and a threshold value
+- Alternative constructor, build, for which the numpy array is created with a given,
+      number of values, identical for each of the 3 dimension, x, y and z.
+"""
+
 
 class FractalDimObject(object):
     def __init__(self, xyz: np.array, threshold: float) -> None:
@@ -57,7 +69,6 @@ class FractalDimObject(object):
         # Step 1 Extract the sizes of array
         sizes = self.__extract_size()
         sizes_list = list(sizes)
-        sizes_list.reverse()
 
         # Step 2 Count the number of boxes of each size
         counts = [self.__count_boxes(int(size)) for size in sizes_list]

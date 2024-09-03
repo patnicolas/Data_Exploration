@@ -36,7 +36,6 @@ class FractalDimObjectTest(unittest.TestCase):
         self.assertTrue(fractal_dim_object.xyz.shape[2] == sample_size)
         print(str(fractal_dim_object))
 
-
     def test_call(self):
         import math
         sample_size = 256
