@@ -3,7 +3,7 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from typing import List, Self, AnyStr, Dict, NoReturn
 from dataclasses import dataclass
-from tascatter import TAScatter
+from ta_scatter import TAScatter
 import numpy as np
 import pandas as pd
 import yfinance as yf
@@ -19,7 +19,7 @@ class TATicker:
     @classmethod
     def build(cls, ticker: AnyStr, df: pd.DataFrame) -> Self:
         print(df.head())
-        path = f'data/{ticker}.csv'
+        path = f'../../data/{ticker}.csv'
         df.to_csv(path)
         ds = pd.read_csv(path, delimiter=',')
         return TATicker(ticker,
@@ -34,10 +34,3 @@ class TATicker:
     def scatter(labeled_data: List[Dict[AnyStr, np.array]], title: AnyStr, annotation_data: np.array):
         ta_scatter = TAScatter(labeled_data, title, annotation_data)
         ta_scatter.visualize()
-
-
-if __name__ == '__main__':
-    data = yf.download('MO', start='2020-01-01', end='2024-09-01')
-    ta_ticker = TATicker.build('WBA', data)
-    ta_market_forecast = ta_ticker.market_forecast()
-    ta_market_forecast.scatter(normalize=True)

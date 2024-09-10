@@ -9,7 +9,10 @@ from matplotlib.colorbar import Colorbar
 
 
 class TAScatter(object):
-    def __init__(self, data: List[Dict[AnyStr, np.array]], title: AnyStr, annotation_data: np.array) -> None:
+    def __init__(self,
+                 data: List[Dict[AnyStr, np.array]],
+                 title: AnyStr,
+                 annotation_data: np.array = []) -> None:
         self.data = data
         self.title = title
         self.annotation_data = annotation_data
@@ -52,11 +55,26 @@ class TAScatter(object):
     def __add_annotation_points(self, ax: Axes) -> NoReturn:
         if len(self.annotation_data) > 0:
             indices: List[int] = list(self.annotation_data)
+            x_values = [x for idx, x in enumerate(self.data[0]['values']) if idx in indices]
+            y_values = [x for idx, x in enumerate(self.data[1]['values']) if idx in indices]
+            z_values = [x for idx, x in enumerate(self.data[2]['values']) if idx in indices]
             ax.scatter(
-                [x for idx, x in enumerate(self.data[0]['values']) if idx in indices],
-                [x for idx, x in enumerate(self.data[1]['values']) if idx in indices],
-                [x for idx, x in enumerate(self.data[2]['values']) if idx in indices],
-                color='red', s=150, edgecolor='red')
+                x_values,
+                y_values,
+                z_values,
+                color='red',
+                s=120,
+                edgecolor='red')
+            x_text = min(x_values) - 16
+            y_text = min(y_values) - 16
+            z_text = min(z_values) - 16
+            font = {'family': 'serif',
+                    'color': 'red',
+                    'weight': 'bold',
+                    'size': 13,
+                    }
+            ax.text(x_text, y_text, z_text, 'Trade entries', fontdict =font, size=13, zorder=1)
+
 
     def __visualize_4d(self) -> NoReturn:
         # Create a 3D plot

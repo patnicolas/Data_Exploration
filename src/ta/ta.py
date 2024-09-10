@@ -3,7 +3,7 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from typing import List, Self, AnyStr, Dict
 import yfinance as yf
-from taticker import TATicker
+from ta_ticker import TATicker
 
 
 

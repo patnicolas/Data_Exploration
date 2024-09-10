@@ -3,35 +3,25 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from typing import AnyStr, NoReturn, Self
 import numpy as np
-from tainstrument import TAInstrument
-from taticker import TATicker
+from ta_instrument import TAInstrument
+from ta_ticker import TATicker
+from ta_macd import TAMacd
 
 
-class TAMACD(TAInstrument):
+class TAMacdVolPrice(TAMacd):
     def __init__(self,
                  ticker: AnyStr,
                  signal_line: np.array,
                  histogram: np.array,
                  volumes: np.array,
                  prices: np.array) -> None:
-        super(TAMACD, self).__init__('M.A.C.D. - Volume - Price', prices)
+        super(TAMacdVolPrice, self).__init__('M.A.C.D. - Volume - Price', signal_line, histogram, prices)
         self.ticker = ticker
-        self.signal_line = signal_line
-        self.histogram = histogram
         self.volumes = volumes
 
     @classmethod
     def build(cls, _ta_ticker: TATicker) -> Self:
-        from tamovaverage import TAMovAverage, MovAverageType
-
-        ema_12 = TAMovAverage.build(ta_ticker, MovAverageType.exponential, 12,)
-        ema_26 = TAMovAverage.build(ta_ticker, MovAverageType.exponential, 26)
-
-        macd_line = ema_12.mov_average[14:] - ema_26.mov_average
-        signal_line = TAMovAverage.build_('EMA-9', MovAverageType.exponential, 9, macd_line).mov_average
-
-        macd_hist = macd_line[8:] - signal_line
-        offset = len(_ta_ticker.closes) - len(macd_hist)
+        signal_line, macd_hist, offset = TAMacd._compute_hist(_ta_ticker)
         return cls(
             _ta_ticker.ticker,
             signal_line,
@@ -40,7 +30,7 @@ class TAMACD(TAInstrument):
             _ta_ticker.closes[offset:])
 
     def scatter(self) -> NoReturn:
-        from tascatter import TAScatter
+        from ta_scatter import TAScatter
 
         reversal_points = []
         _data = [
@@ -51,7 +41,6 @@ class TAMACD(TAInstrument):
         ta_scatter = TAScatter(_data, f'{self.name} [{self.ticker}]', reversal_points)
         ta_scatter.visualize()
 
-
     def __str__(self) -> AnyStr:
         return f'\nTicker: {self.ticker}\nSignal  line:\n{self.signal_line}\nHistogram:\n{self.histogram}'
 
@@ -61,7 +50,7 @@ if __name__ == '__main__':
 
     data = yf.download('MO', start='2020-01-01', end='2024-09-01')
     ta_ticker = TATicker.build('WBA', data)
-    ta_macd = TAMACD.build(ta_ticker)
+    ta_macd = TAMacdVolPrice.build(ta_ticker)
     print(str(ta_macd))
     ta_macd.scatter()
 

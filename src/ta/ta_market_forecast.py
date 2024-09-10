@@ -3,8 +3,8 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from typing import AnyStr, NoReturn, Self, List
 import numpy as np
-from tainstrument import TAInstrument
-from taticker import TATicker
+from ta_instrument import TAInstrument
+from ta_ticker import TATicker
 
 
 class TAMarketForecast(TAInstrument):
@@ -22,7 +22,7 @@ class TAMarketForecast(TAInstrument):
 
     @classmethod
     def build(cls, _ta_ticker: TATicker, time_frames: List[int] = (2, 10, 40)) -> Self:
-        from tamovaverage import TAMovAverage, MovAverageType
+        from ta_mov_average import TAMovAverage, MovAverageType
 
         assert len(time_frames) == 3, f'Market forecast has {len(time_frames)} time frames It should be 3'
         assert time_frames[0] < time_frames[1] < time_frames[2], \
@@ -40,7 +40,7 @@ class TAMarketForecast(TAInstrument):
         return market_forecast
 
     def scatter(self, normalize: bool) -> NoReturn:
-        from tascatter import TAScatter
+        from ta_scatter import TAScatter
 
         reversal_points = []
         if normalize:
@@ -80,7 +80,7 @@ class TAMarketForecast(TAInstrument):
 
 if __name__ == '__main__':
     import yfinance as yf
-    from taticker import TATicker
+    from ta_ticker import TATicker
 
     data = yf.download('MO', start='2020-01-01', end='2024-09-01')
     ta_ticker = TATicker.build('WBA', data)

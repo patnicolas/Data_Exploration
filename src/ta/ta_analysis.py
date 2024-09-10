@@ -2,10 +2,10 @@ __author__ = "Patrick Nicolas"
 __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from typing import List
-from tamarketforecast import TAMarketForecast
-from taticker import TATicker
-from tamacd import TAMACD
-from tamovaverage import TAMovAverage, MovAverageType
+from ta_market_forecast import TAMarketForecast
+from ta_ticker import TATicker
+from ta_macd_vol_price import TAMacdVolPrice
+from ta_mov_average import TAMovAverage, MovAverageType
 
 
 class TAAnalysis(object):
@@ -32,8 +32,8 @@ class TAAnalysis(object):
         )
         return market_forecast
 
-    def macd(self) -> TAMACD:
-        return TAMACD.build(self.ta_ticker)
+    def macd(self) -> TAMacdVolPrice:
+        return TAMacdVolPrice.build(self.ta_ticker)
 
 
 
