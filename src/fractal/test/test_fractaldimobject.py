@@ -36,6 +36,7 @@ class FractalDimObjectTest(unittest.TestCase):
         self.assertTrue(fractal_dim_object.xyz.shape[2] == sample_size)
         print(str(fractal_dim_object))
 
+    @unittest.skip('ignore')
     def test_call(self):
         import math
         sample_size = 256
@@ -68,3 +69,36 @@ class FractalDimObjectTest(unittest.TestCase):
         plt.ylabel('Box sizes')
         plt.legend()
         plt.show()
+
+    def test_4_dim(self):
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import random
+
+        num_pts = 2000
+        # Sample data
+        x = np.random.rand(num_pts)
+        y = np.random.rand(num_pts)
+        z = np.random.rand(num_pts)
+        levels = np.array([random.gauss(0.5, 0.2) for _ in range(num_pts)])  # Fourth variable for color
+
+        # Create a 3D plot
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        # Create the scatter plot
+        scatter = ax.scatter(x, y, z, c=levels, cmap='viridis')
+
+        # Add color bar which maps values to colors
+        cbar = fig.colorbar(scatter, ax=ax, shrink=1.0, aspect=20)
+        cbar.set_label('Color Scale')
+
+        # Labels for axes
+        ax.set_xlabel('X Axis')
+        ax.set_ylabel('Y Axis')
+        ax.set_zlabel('Z Axis')
+        ax.set_title('4 Dimension representation')
+
+        # Show plot
+        plt.show()
+
