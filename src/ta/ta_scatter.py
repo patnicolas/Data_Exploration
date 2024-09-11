@@ -4,7 +4,7 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 from typing import Dict, List, AnyStr, NoReturn
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.axes import Axes
+from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.colorbar import Colorbar
 
 
@@ -32,7 +32,7 @@ class TAScatter(object):
 
     def __visualize_2d(self) -> NoReturn:
         # Create the scatter plot
-        plt.scatter(self.data[0]['values'], self.data[1]['values'], cmap='viridis')
+        plt.scatter(self.data[0]['values'], self.data[1]['values'], cmap='GnBu')
         # Labels for axes
         plt.xlabel(self.data[0]['label'])
         plt.ylabel(self.data[1]['label'])
@@ -45,58 +45,63 @@ class TAScatter(object):
         # Create a 3D plot
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
+
         # Create the scatter plot
-        ax.scatter(self.data[0]['values'], self.data[1]['values'], self.data[2]['values'], cmap='viridis')
-        self.__set_labels(ax)
+        ax.scatter(self.data[0]['values'], self.data[1]['values'], self.data[2]['values'], cmap='GnBu')
         self.__add_annotation_points(ax)
+        self.__set_labels(ax)
+        plt.legend()
+        plt.grid()
         # Show plot
         plt.show()
-
-    def __add_annotation_points(self, ax: Axes) -> NoReturn:
-        if len(self.annotation_data) > 0:
-            indices: List[int] = list(self.annotation_data)
-            x_values = [x for idx, x in enumerate(self.data[0]['values']) if idx in indices]
-            y_values = [x for idx, x in enumerate(self.data[1]['values']) if idx in indices]
-            z_values = [x for idx, x in enumerate(self.data[2]['values']) if idx in indices]
-            ax.scatter(
-                x_values,
-                y_values,
-                z_values,
-                color='red',
-                s=120,
-                edgecolor='red')
-            x_text = min(x_values) - 16
-            y_text = min(y_values) - 16
-            z_text = min(z_values) - 16
-            font = {'family': 'serif',
-                    'color': 'red',
-                    'weight': 'bold',
-                    'size': 13,
-                    }
-            ax.text(x_text, y_text, z_text, 'Trade entries', fontdict =font, size=13, zorder=1)
-
 
     def __visualize_4d(self) -> NoReturn:
         # Create a 3D plot
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
+
         # Create the scatter plot
-        scatter = ax.scatter(
+        scatter = ax.scatter3D(
             self.data[0]['values'],
             self.data[1]['values'],
             self.data[2]['values'],
             c=self.data[3]['values'],
-            cmap='viridis')
+            alpha=0.8,
+            label='Data',
+            cmap='GnBu',
+            zorder=1)
 
         # Add color bar which maps values to colors
-        cbar = fig.colorbar(scatter, ax=ax, shrink=1.0, aspect=20)
+        cbar = fig.colorbar(scatter, ax=ax, shrink=0.4, aspect=20, orientation='horizontal')
+        self.__add_annotation_points(ax)
         self.__set_labels(ax, cbar)
         self.__set_labels(ax)
-        self.__add_annotation_points(ax)
+        plt.legend()
+        plt.grid()
         # Show plot
         plt.show()
 
-    def __set_labels(self, ax: Axes, color_bar: Colorbar = None):
+
+    def __add_annotation_points(self, ax: Axes3D) -> NoReturn:
+        if len(self.annotation_data) > 0:
+            indices: List[int] = list(self.annotation_data)
+            x_values = [x for idx, x in enumerate(self.data[0]['values']) if idx in indices]
+            y_values = [x for idx, x in enumerate(self.data[1]['values']) if idx in indices]
+            z_values = [x for idx, x in enumerate(self.data[2]['values']) if idx in indices]
+            z_order = len(x_values)+10
+            ax.scatter3D(
+                x_values,
+                y_values,
+                z_values,
+                alpha=0.8,
+                label='Trade entries',
+                color='red',
+                s=40,
+                edgecolor='red',
+                zorder=z_order+1)
+
+
+    def __set_labels(self, ax: Axes3D, color_bar: Colorbar = None):
         if color_bar is not None:
             ax.set_zlabel(self.data[2]['label'])
             color_bar.set_label(self.data[3]['label'])

@@ -20,6 +20,13 @@ class TAMacd(TAInstrument):
 
     @classmethod
     def build(cls, _ta_ticker: TATicker) -> Self:
+        """
+        Alternative constructor using the fully defined TA ticker data
+        @param _ta_ticker: Ticker instance containing ticker symbole, volume, high, low and closing prices
+        @type _ta_ticker: TATicker class
+        @return: Instance of this TAMacd
+        @rtype: TAMacd class
+        """
         signal_line, macd_hist, offset = TAMacd._compute_hist(_ta_ticker)
         return cls(_ta_ticker.ticker, signal_line, macd_hist, _ta_ticker.closes[offset:])
 

@@ -16,13 +16,21 @@ class TAMacdRsiVol(TAMacd):
                  volumes: np.array,
                  rsi: np.array,
                  prices: np.array) -> None:
-        super(TAMacdRsiVol, self).__init__('M.A.C.D. - Volume - Price', signal_line, histogram, prices)
+        super(TAMacdRsiVol, self).__init__('M.A.C.D. - RSI - Volume - Price', signal_line, histogram, prices)
+        self.name = self.name + '- RSI - Volume - Price'
         self.ticker = ticker
         self.volumes = volumes
         self.rsi = rsi
 
     @classmethod
     def build(cls, _ta_ticker: TATicker) -> Self:
+        """
+        Alternative constructor using the fully defined TA ticker data
+        @param _ta_ticker: Ticker instance containing ticker symbole, volume, high, low and closing prices
+        @type _ta_ticker: TATicker class
+        @return: Instance of this TAMacdRsiVol
+        @rtype: TAMacdRsiVol class
+        """
         signal_line, macd_hist, offset = TAMacd._compute_hist(_ta_ticker)
         ta_rsi = TARsi.build(_ta_ticker)
         rsi = ta_rsi.rsi
@@ -37,21 +45,51 @@ class TAMacdRsiVol(TAMacd):
             signal_line,
             macd_hist,
             _ta_ticker.volumes[offset:],
-            rsi[offset-14:],
+            rsi[offset-15:],
             _ta_ticker.closes[offset:])
 
     def __str__(self) -> AnyStr:
         return f'\nTicker: {self.ticker}\nSignal  line:\n{self.signal_line}\nHistogram:\n{self.histogram}' \
                f'\nVolume:\n{self.volumes}\nRSI:\n{self.rsi}'
 
+    def scatter(self, _annotated_data: np.array) -> np.array:
+        from ta_scatter import TAScatter
+
+        _data = [
+            {'label': 'MACD Histogram', 'values': self.histogram},
+            {'label': 'RSI', 'values': self.rsi},
+            {'label': 'Volume', 'values': self.volumes},
+            {'label': 'Prices $', 'values': self.prices},
+        ]
+        ta_scatter = TAScatter(_data, f'{self.name} [{self.ticker}]', _annotated_data)
+        ta_scatter.visualize()
+        return _annotated_data
+
 
 if __name__ == '__main__':
     import yfinance as yf
+    from ta_market_forecast import TAMarketForecast
+    from ta_macd_vol_price import TAMacdVolPrice
+    from ta_mfi import TAMfi
 
     data = yf.download('MO', start='2020-01-01', end='2024-09-01')
     ta_ticker = TATicker.build('WBA', data)
-    ta_macd = TAMacdRsiVol.build(ta_ticker)
+
+    ta_market_forecast = TAMarketForecast.build(ta_ticker)
+    annotated_data = ta_market_forecast.scatter(normalize=True)
+
+    ta_macd = TAMacdVolPrice.build(ta_ticker)
     print(str(ta_macd))
+    ta_macd.scatter(annotated_data)
+
+    ta_macd_rsi_volume = TAMacdRsiVol.build(ta_ticker)
+    print(str(ta_macd_rsi_volume))
+    ta_macd_rsi_volume.scatter(annotated_data)
+
+    ta_mfi = TAMfi.build(ta_ticker)
+    print(str(ta_mfi))
+    ta_mfi.scatter(annotated_data)
+
 
 
 

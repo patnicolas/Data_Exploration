@@ -13,6 +13,8 @@ import yfinance as yf
 class TATicker:
     ticker: AnyStr
     dates: List[AnyStr]
+    highs: np.array
+    lows: np.array
     closes: np.array
     volumes: np.array
 
@@ -24,11 +26,14 @@ class TATicker:
         ds = pd.read_csv(path, delimiter=',')
         return TATicker(ticker,
                         list(ds['Date'].values),
+                        ds['High'].values,
+                        ds['Low'].values,
                         ds['Close'].values,
                         ds['Volume'].values)
 
     def __str__(self) -> AnyStr:
-        return f'\nTicker: {self.ticker} --------------\ndates:\n{str(self.dates)}\nCloses:\n{self.closes}\nVolumes:\n{self.volumes}'
+        return f'\n ----- Ticker: {self.ticker} -------\ndates:\n{str(self.dates)}\nCloses:\n{self.closes}' \
+               f'\nHighs:\n{self.highs}\nLows:\n{self.lows}\nVolumes:\n{self.volumes}'
 
     @staticmethod
     def scatter(labeled_data: List[Dict[AnyStr, np.array]], title: AnyStr, annotation_data: np.array):

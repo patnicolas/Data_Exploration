@@ -15,6 +15,7 @@ class TAMarketForecast(TAInstrument):
                  near_term: np.array,
                  intermediate: np.array) -> None:
         super(TAMarketForecast, self).__init__('Market Forecast', prices)
+        self.name = self.name + ' - Price'
         self.ticker = ticker
         self.momentum = momentum
         self.near_term = near_term
@@ -22,6 +23,14 @@ class TAMarketForecast(TAInstrument):
 
     @classmethod
     def build(cls, _ta_ticker: TATicker, time_frames: List[int] = (2, 10, 40)) -> Self:
+        """
+        Alternative constructor using the fully defined TA ticker data
+        @param _ta_ticker: Ticker instance containing ticker symbole, volume, high, low and closing prices
+        @type _ta_ticker: TATicker class
+        @return: Instance of this TAMarketForecast
+        @type time_frames: The 3 time frames for the Market forecast moving average
+        @rtype: List[int]
+        """
         from ta_mov_average import TAMovAverage, MovAverageType
 
         assert len(time_frames) == 3, f'Market forecast has {len(time_frames)} time frames It should be 3'
@@ -39,7 +48,7 @@ class TAMarketForecast(TAInstrument):
         )
         return market_forecast
 
-    def scatter(self, normalize: bool) -> NoReturn:
+    def scatter(self, normalize: bool) -> np.array:
         from ta_scatter import TAScatter
 
         reversal_points = []
@@ -54,6 +63,7 @@ class TAMarketForecast(TAInstrument):
         ]
         ta_scatter = TAScatter(_data, f'{self.name} [{self.ticker}]', reversal_points)
         ta_scatter.visualize()
+        return reversal_points
 
     """ -----------------  Private helper methods ------------------------  """
     def __normalize(self) -> NoReturn:
