@@ -3,7 +3,7 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from typing import AnyStr, NoReturn, Self
 import numpy as np
-from ta_instrument import TAInstrument
+from ta_study import TAStudy
 from ta_ticker import TATicker
 from ta_macd import TAMacd
 
@@ -31,13 +31,20 @@ class TAMacdVolPrice(TAMacd):
         """
         signal_line, macd_hist, offset = TAMacd._compute_hist(_ta_ticker)
         return cls(
-            _ta_ticker.ticker,
-            signal_line,
-            macd_hist,
-            _ta_ticker.volumes[offset:],
-            _ta_ticker.closes[offset:])
+            ticker=_ta_ticker.ticker,
+            signal_line=signal_line,
+            histogram=macd_hist,
+            volumes=_ta_ticker.volumes[offset:],
+            prices=_ta_ticker.closes[offset:])
 
-    def scatter(self, _annotated_data: np.array) -> np.array:
+    def scatter(self, _annotated_data: np.array = None) -> np.array:
+        """
+        Scatter plot for this study with data point annotated by previous studies
+        @param _annotated_data: Data point selected from previous studies, None if none were selected
+        @type _annotated_data: Numpy Array
+        @return: Newly annotated data point if any, None otherwise
+        @rtype: Numpy array
+        """
         from ta_scatter import TAScatter
 
         _data = [

@@ -1,7 +1,7 @@
 __author__ = "Patrick Nicolas"
 __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
-from ta_instrument import TAInstrument
+from ta_study import TAStudy
 from typing import AnyStr, Self
 import numpy as np
 from ta_ticker import TATicker
@@ -14,7 +14,7 @@ Implementation Relative Strength Index (RSI)
 """
 
 
-class TARsi(TAInstrument):
+class TARsi(TAStudy):
     window: int = 14
 
     def __init__(self, ticker: AnyStr, rsi: np.array, prices: np.array) -> None:
@@ -33,8 +33,7 @@ class TARsi(TAInstrument):
         @rtype: TARsi class
         """
         rsi = TARsi.compute_rsi(_ta_ticker)
-        return cls(_ta_ticker.ticker, rsi, _ta_ticker.closes)
-
+        return cls(ticker=_ta_ticker.ticker, rsi=rsi, prices=_ta_ticker.closes)
 
     @staticmethod
     def compute_rsi(_ta_ticker: TATicker) -> np.array:

@@ -5,7 +5,7 @@ from typing import AnyStr
 import numpy as np
 
 
-class TAInstrument(object):
+class TAStudy(object):
     def __init__(self, name: AnyStr, prices: np.array) -> None:
         self.name = name
         self.prices = prices

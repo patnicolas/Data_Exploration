@@ -16,6 +16,21 @@ class TAMacdRsiVol(TAMacd):
                  volumes: np.array,
                  rsi: np.array,
                  prices: np.array) -> None:
+        """
+        Default constructor for the computation of MACD histogram vs Volume vs RSI vs Price
+        @param ticker: Ticker symbol
+        @type ticker: str
+        @param signal_line: Signal line for this ticker
+        @type signal_line: Numpy array
+        @param histogram: MACD histogram for this ticker
+        @type histogram: Numpy array
+        @param volumes: Daily volume for this ticker
+        @type volumes: Numpy array
+        @param rsi: Relative strength index for this ticker
+        @type rsi: Numpy array
+        @param prices: Closing prices for this ticker
+        @type prices: Numpy array
+        """
         super(TAMacdRsiVol, self).__init__('M.A.C.D. - RSI - Volume - Price', signal_line, histogram, prices)
         self.name = self.name + '- RSI - Volume - Price'
         self.ticker = ticker
@@ -41,18 +56,25 @@ class TAMacdRsiVol(TAMacd):
             f'MACD length {len(macd_hist)} does not match RSI length {len(_ta_ticker.volumes[offset:])}'
 
         return cls(
-            _ta_ticker.ticker,
-            signal_line,
-            macd_hist,
-            _ta_ticker.volumes[offset:],
-            rsi[offset-15:],
-            _ta_ticker.closes[offset:])
+            ticker=_ta_ticker.ticker,
+            signal_line=signal_line,
+            histogram=macd_hist,
+            volumes=_ta_ticker.volumes[offset:],
+            rsi=rsi[offset-15:],
+            prices=_ta_ticker.closes[offset:])
 
     def __str__(self) -> AnyStr:
         return f'\nTicker: {self.ticker}\nSignal  line:\n{self.signal_line}\nHistogram:\n{self.histogram}' \
                f'\nVolume:\n{self.volumes}\nRSI:\n{self.rsi}'
 
-    def scatter(self, _annotated_data: np.array) -> np.array:
+    def scatter(self, _annotated_data: np.array = None) -> np.array:
+        """
+        Scatter plot for this study with data point annotated by previous studies
+        @param _annotated_data: Data point selected from previous studies, None if none were selected
+        @type _annotated_data: Numpy Array
+        @return: Newly annotated data point if any, None otherwise
+        @rtype: Numpy array
+        """
         from ta_scatter import TAScatter
 
         _data = [
@@ -76,15 +98,7 @@ if __name__ == '__main__':
     ta_ticker = TATicker.build('WBA', data)
 
     ta_market_forecast = TAMarketForecast.build(ta_ticker)
-    annotated_data = ta_market_forecast.scatter(normalize=True)
-
-    ta_macd = TAMacdVolPrice.build(ta_ticker)
-    print(str(ta_macd))
-    ta_macd.scatter(annotated_data)
-
-    ta_macd_rsi_volume = TAMacdRsiVol.build(ta_ticker)
-    print(str(ta_macd_rsi_volume))
-    ta_macd_rsi_volume.scatter(annotated_data)
+    annotated_data = ta_market_forecast.scatter()
 
     ta_mfi = TAMfi.build(ta_ticker)
     print(str(ta_mfi))

@@ -4,7 +4,7 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 from typing import Self, AnyStr, List
 import numpy as np
 from enum import Enum
-from ta_instrument import TAInstrument
+from ta_study import TAStudy
 from ta_ticker import TATicker
 import sys
 sys.setrecursionlimit(2048)
@@ -15,9 +15,9 @@ class MovAverageType(Enum):
     exponential = 'Exponential'
 
 
-class TAMovAverage(TAInstrument):
-    def __init__(self, name: AnyStr, prices: np.array, mov_average: np.array) -> None:
-        super(TAMovAverage, self).__init__(name, prices)
+class TAMovAverage(TAStudy):
+    def __init__(self, ticker: AnyStr, prices: np.array, mov_average: np.array) -> None:
+        super(TAMovAverage, self).__init__(ticker, prices)
         self.mov_average = mov_average
 
     @classmethod
@@ -28,7 +28,7 @@ class TAMovAverage(TAInstrument):
                 x = TAMovAverage.__simple(window_size, prices)
             case MovAverageType.exponential:
                 x = TAMovAverage.__exponential(window_size, prices)
-        return cls(ticker, prices, x)
+        return cls(ticker=ticker, prices=prices, mov_average=x)
 
     @classmethod
     def build(cls, ta_ticker: TATicker, mov_average_type: MovAverageType, window_size: int) -> Self:

@@ -1,7 +1,7 @@
 __author__ = "Patrick Nicolas"
 __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
-from ta_instrument import TAInstrument
+from ta_study import TAStudy
 from ta_ticker import TATicker
 from typing import AnyStr, Self, NoReturn
 import numpy as np
@@ -17,7 +17,7 @@ Implementation of the computation of Money Flow Index (MFI)
 """
 
 
-class TAMfi(TAInstrument):
+class TAMfi(TAStudy):
     window: int = 14
     def __init__(self,
                  ticker: AnyStr,
@@ -68,12 +68,23 @@ class TAMfi(TAInstrument):
             money_flow_ratios.append(sum(pos_money_flows[idx:idx_end])/sum(neg_money_flows[idx:idx_end]))
 
         money_flow_indices = [100.0*(1 - 1/(1+mf)) for mf in money_flow_ratios]
-        return cls(_ta_ticker.ticker, _ta_ticker.closes, money_flow_indices, _ta_ticker.volumes)
+        return cls(
+            ticker=_ta_ticker.ticker,
+            prices=_ta_ticker.closes,
+            mfis=money_flow_indices,
+            volumes=_ta_ticker.volumes)
 
     def __str__(self) -> AnyStr:
         return f'\nTicker: {self.ticker}\nMFIs:\n{self.mfis}\nVolume:\n{self.volumes}'
 
-    def scatter(self, _annotated_data: np.array=None) -> np.array:
+    def scatter(self, _annotated_data: np.array = None) -> np.array:
+        """
+        Scatter plot for this study with data point annotated by previous studies
+        @param _annotated_data: Data point selected from previous studies, None if none were selected
+        @type _annotated_data: Numpy Array
+        @return: Newly annotated data point if any, None otherwise
+        @rtype: Numpy array
+        """
         if _annotated_data is None:
             _annotated_data = []
         from ta_scatter import TAScatter

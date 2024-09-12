@@ -3,23 +3,25 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from typing import AnyStr, NoReturn, Self, List
 import numpy as np
-from ta_instrument import TAInstrument
+from ta_study import TAStudy
 from ta_ticker import TATicker
 
 
-class TAMarketForecast(TAInstrument):
+class TAMarketForecast(TAStudy):
     def __init__(self,
                  ticker: AnyStr,
                  prices: np.array,
                  momentum: np.array,
                  near_term: np.array,
-                 intermediate: np.array) -> None:
+                 intermediate: np.array,
+                 normalize: bool = True) -> None:
         super(TAMarketForecast, self).__init__('Market Forecast', prices)
         self.name = self.name + ' - Price'
         self.ticker = ticker
         self.momentum = momentum
         self.near_term = near_term
         self.intermediate = intermediate
+        self.normalize = normalize
 
     @classmethod
     def build(cls, _ta_ticker: TATicker, time_frames: List[int] = (2, 10, 40)) -> Self:
@@ -40,30 +42,38 @@ class TAMarketForecast(TAInstrument):
         simple_mov_averages = [TAMovAverage.build(_ta_ticker, MovAverageType.simple, time_frame) for
                                time_frame in time_frames]
         market_forecast = TAMarketForecast(
-            _ta_ticker.ticker,
-            _ta_ticker.closes[time_frames[2] - 1:],
-            simple_mov_averages[0].mov_average[time_frames[2] - time_frames[0]:],
-            simple_mov_averages[1].mov_average[time_frames[2] - time_frames[1]:],
-            simple_mov_averages[2].mov_average
+            ticker=_ta_ticker.ticker,
+            prices=_ta_ticker.closes[time_frames[2] - 1:],
+            momentum=simple_mov_averages[0].mov_average[time_frames[2] - time_frames[0]:],
+            near_term=simple_mov_averages[1].mov_average[time_frames[2] - time_frames[1]:],
+            intermediate=simple_mov_averages[2].mov_average,
+            normalize=True
         )
         return market_forecast
 
-    def scatter(self, normalize: bool) -> np.array:
+    def scatter(self, _annotated_data: np.array = None) -> np.array:
+        """
+        Scatter plot for this study with data point annotated by previous studies
+        @param _annotated_data: Data point selected from previous studies, None if none were selected
+        @type _annotated_data: Numpy Array
+        @return: Newly annotated data point if any, None otherwise
+        @rtype: Numpy array
+        """
         from ta_scatter import TAScatter
 
-        reversal_points = []
-        if normalize:
+        annotated_data = [] if _annotated_data is None else _annotated_data
+        if self.normalize:
             self.__normalize()
-            reversal_points = self.__annotation_points()
+            annotated_data = self.__annotation_points()
         _data = [
             {'label': 'Momentum %', 'values': self.momentum},
             {'label': 'Near Term %', 'values': self.near_term},
             {'label': 'Intermediate %', 'values': self.intermediate},
             {'label': 'Price $', 'values': self.prices}
         ]
-        ta_scatter = TAScatter(_data, f'{self.name} [{self.ticker}]', reversal_points)
+        ta_scatter = TAScatter(_data, f'{self.name} [{self.ticker}]', annotated_data)
         ta_scatter.visualize()
-        return reversal_points
+        return annotated_data
 
     """ -----------------  Private helper methods ------------------------  """
     def __normalize(self) -> NoReturn:

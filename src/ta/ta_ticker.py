@@ -24,18 +24,20 @@ class TATicker:
         path = f'../../data/{ticker}.csv'
         df.to_csv(path)
         ds = pd.read_csv(path, delimiter=',')
-        return TATicker(ticker,
-                        list(ds['Date'].values),
-                        ds['High'].values,
-                        ds['Low'].values,
-                        ds['Close'].values,
-                        ds['Volume'].values)
+        return TATicker(ticker=ticker,
+                        dates=list(ds['Date'].values),
+                        highs=ds['High'].values,
+                        lows=ds['Low'].values,
+                        closes=ds['Close'].values,
+                        volumes=ds['Volume'].values)
 
     def __str__(self) -> AnyStr:
         return f'\n ----- Ticker: {self.ticker} -------\ndates:\n{str(self.dates)}\nCloses:\n{self.closes}' \
                f'\nHighs:\n{self.highs}\nLows:\n{self.lows}\nVolumes:\n{self.volumes}'
 
+    """
     @staticmethod
     def scatter(labeled_data: List[Dict[AnyStr, np.array]], title: AnyStr, annotation_data: np.array):
         ta_scatter = TAScatter(labeled_data, title, annotation_data)
         ta_scatter.visualize()
+    """

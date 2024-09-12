@@ -1,40 +1,51 @@
 __author__ = "Patrick Nicolas"
 __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
-from typing import List
-from ta_market_forecast import TAMarketForecast
+from typing import NoReturn, AnyStr, Self
 from ta_ticker import TATicker
-from ta_macd_vol_price import TAMacdVolPrice
-from ta_mov_average import TAMovAverage, MovAverageType
 
 
 class TAAnalysis(object):
-    def __init__(self, _ta_ticker: TATicker):
+    def __init__(self, _ta_ticker: TATicker) -> None:
         self.ta_ticker = _ta_ticker
 
-    def moving_average(self, mov_ave_type: MovAverageType, window_size: int) -> TAMovAverage:
-        return TAMovAverage.build(self.ta_ticker, mov_ave_type, window_size)
+    @classmethod
+    def build(cls, start_date: AnyStr, end_date: AnyStr) -> Self:
+        """
+        Alternative constructor for the TA analysis as sequence of predefined studies
+        @param start_date: Starting date for ticker data (High, Low, close price, Volume)
+        @type start_date: str
+        @param end_date: End date for ticker data (High, Low, close price, Volume)
+        @type end_date: str
+        @return: Instance of TA analysis
+        @rtype: TAAnalysis
+        """
+        import yfinance as yf
 
-    def market_forecast(self, time_frames: List[int] = (2, 10, 40)) -> TAMarketForecast:
-        assert len(time_frames) == 3, f'Market forecast has {len(time_frames)} time frames It should be 3'
-        assert time_frames[0] < time_frames[1] < time_frames[2], \
-            f'Market forecast time frames {time_frames} are incorrect'
+        ta_data = yf.download('MO', start=start_date, end=end_date)
+        _ta_ticker = TATicker.build('WBA', ta_data)
+        return cls(_ta_ticker)
 
-        #   def build(cls, mov_average_type: MovAverageType, window_size: int, values: np.array)  -> Self:
-        simple_mov_averages = [TAMovAverage.build(self.ta_ticker, MovAverageType.simple, time_frame)
-                               for time_frame in time_frames]
-        market_forecast = TAMarketForecast(
-            self.ta_ticker.ticker,
-            self.ta_ticker.closes[time_frames[2] - 1:],
-            simple_mov_averages[0].mov_average[time_frames[2] - time_frames[0]:],
-            simple_mov_averages[1].mov_average[time_frames[2] - time_frames[1]:],
-            simple_mov_averages[1].mov_average
-        )
-        return market_forecast
+    def scatter(self) -> NoReturn:
+        from ta_market_forecast import TAMarketForecast
+        from ta_macd_vol_price import TAMacdVolPrice
+        from ta_macd_rsi_vol import TAMacdRsiVol
+        from ta_mfi import TAMfi
 
-    def macd(self) -> TAMacdVolPrice:
-        return TAMacdVolPrice.build(self.ta_ticker)
+        ta_market_forecast = TAMarketForecast.build(self.ta_ticker)
+        annotated_data = ta_market_forecast.scatter()
 
+        ta_macd = TAMacdVolPrice.build(self.ta_ticker)
+        print(str(ta_macd))
+        ta_macd.scatter(annotated_data)
+
+        ta_macd_rsi_volume = TAMacdRsiVol.build(self.ta_ticker)
+        print(str(ta_macd_rsi_volume))
+        ta_macd_rsi_volume.scatter(annotated_data)
+
+        ta_mfi = TAMfi.build(self.ta_ticker)
+        print(str(ta_mfi))
+        ta_mfi.scatter(annotated_data)
 
 
 if __name__ == '__main__':
@@ -43,5 +54,4 @@ if __name__ == '__main__':
     data = yf.download('MO', start='2020-01-01', end='2024-09-01')
     ta_ticker = TATicker.build('WBA', data)
     ta_analysis = TAAnalysis(ta_ticker)
-    ta_market_forecast = ta_analysis.market_forecast()
-    ta_market_forecast.scatter(normalize=True)
+    ta_analysis.scatter()

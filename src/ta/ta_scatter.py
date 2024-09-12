@@ -12,12 +12,26 @@ class TAScatter(object):
     def __init__(self,
                  data: List[Dict[AnyStr, np.array]],
                  title: AnyStr,
-                 annotation_data: np.array = []) -> None:
+                 annotation_data: np.array = None) -> None:
+        """
+        Default constructor for the Scatter plot of dimension 2, 3 or 4
+        @param data: Dictionary of variable defined as { 'label': Values as Numpy array }
+        @type data: List of dictionaries
+        @param title: Title for the Scatter plot
+        @type title: str
+        @param annotation_data: Annotation if available
+        @type annotation_data: Numpy array
+        """
+        assert 1 < len(data) < 5, f'The number of variable for this Scatter plot {len(data)} should be [2, 4]'
+
         self.data = data
         self.title = title
         self.annotation_data = annotation_data
 
     def visualize(self) -> NoReturn:
+        """
+        Draw scatter plan for input data defined as a dictionary {label:values}
+        """
         match len(self.data):
             case 2:
                 self.__visualize_2d()
