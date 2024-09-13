@@ -1,5 +1,5 @@
 Exploration and analysis of data on manifold
-Patrick Nicolas - Oct 2023 - Aug 2024
+Patrick Nicolas - Oct 2023 - Oct 2024
 
 ![Analysis of data on manifolds](images/Data_Exploration_Banner.png)
 
