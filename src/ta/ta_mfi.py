@@ -1,9 +1,9 @@
 __author__ = "Patrick Nicolas"
 __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
-from ta_study import TAStudy
-from ta_ticker import TATicker
-from typing import AnyStr, Self, NoReturn
+from ta.ta_study import TAStudy
+from ta.ta_ticker import TATicker
+from typing import AnyStr, Self
 import numpy as np
 
 """
@@ -87,7 +87,7 @@ class TAMfi(TAStudy):
         """
         if _annotated_data is None:
             _annotated_data = []
-        from ta_scatter import TAScatter
+        from ta.ta_scatter import TAScatter
 
         _data = [
             {'label': 'MFI', 'values': self.mfis},
@@ -97,13 +97,3 @@ class TAMfi(TAStudy):
         ta_scatter = TAScatter(_data, f'{self.name} [{self.ticker}]', _annotated_data)
         ta_scatter.visualize()
         return _annotated_data
-
-
-if __name__ == '__main__':
-    import yfinance as yf
-
-    data = yf.download('MO', start='2020-01-01', end='2024-09-01')
-    ta_ticker = TATicker.build('WBA', data)
-    ta_mfi = TAMfi.build(ta_ticker)
-    print(ta_mfi)
-    ta_mfi.scatter()

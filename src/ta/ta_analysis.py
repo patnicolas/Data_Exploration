@@ -2,7 +2,7 @@ __author__ = "Patrick Nicolas"
 __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from typing import NoReturn, AnyStr, Self
-from ta_ticker import TATicker
+from ta.ta_ticker import TATicker
 
 
 class TAAnalysis(object):
@@ -26,11 +26,17 @@ class TAAnalysis(object):
         _ta_ticker = TATicker.build('WBA', ta_data)
         return cls(_ta_ticker)
 
+    def __str__(self) -> AnyStr:
+        return f'Analysis for {self.ta_ticker}'
+
     def scatter(self) -> NoReturn:
-        from ta_market_forecast import TAMarketForecast
-        from ta_macd_vol_price import TAMacdVolPrice
-        from ta_macd_rsi_vol import TAMacdRsiVol
-        from ta_mfi import TAMfi
+        """
+        List of scatter plots for a sequence of predefined TA studies
+        """
+        from ta.ta_market_forecast import TAMarketForecast
+        from ta.ta_macd_vol_price import TAMacdVolPrice
+        from ta.ta_macd_rsi_vol import TAMacdRsiVol
+        from ta.ta_mfi import TAMfi
 
         ta_market_forecast = TAMarketForecast.build(self.ta_ticker)
         annotated_data = ta_market_forecast.scatter()
@@ -51,7 +57,8 @@ class TAAnalysis(object):
 if __name__ == '__main__':
     import yfinance as yf
 
-    data = yf.download('MO', start='2020-01-01', end='2024-09-01')
-    ta_ticker = TATicker.build('WBA', data)
+    ticker_symbol = 'WBA'
+    data = yf.download(ticker_symbol, start='2020-01-01', end='2024-09-01')
+    ta_ticker = TATicker.build(ticker_symbol, data)
     ta_analysis = TAAnalysis(ta_ticker)
     ta_analysis.scatter()

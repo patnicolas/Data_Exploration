@@ -4,8 +4,8 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 from typing import Self, AnyStr, List
 import numpy as np
 from enum import Enum
-from ta_study import TAStudy
-from ta_ticker import TATicker
+from ta.ta_study import TAStudy
+from ta.ta_ticker import TATicker
 import sys
 sys.setrecursionlimit(2048)
 

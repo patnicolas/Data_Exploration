@@ -95,9 +95,8 @@ class TAScatter(object):
         # Show plot
         plt.show()
 
-
     def __add_annotation_points(self, ax: Axes3D) -> NoReturn:
-        if len(self.annotation_data) > 0:
+        if self.annotation_data is not None:
             indices: List[int] = list(self.annotation_data)
             x_values = [x for idx, x in enumerate(self.data[0]['values']) if idx in indices]
             y_values = [x for idx, x in enumerate(self.data[1]['values']) if idx in indices]

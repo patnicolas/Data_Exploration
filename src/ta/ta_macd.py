@@ -3,8 +3,8 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from typing import AnyStr, Self
 import numpy as np
-from ta_study import TAStudy
-from ta_ticker import TATicker
+from ta.ta_study import TAStudy
+from ta.ta_ticker import TATicker
 
 
 """
@@ -63,7 +63,7 @@ class TAMacd(TAStudy):
         @return: Tuple (signal_line, MACD histogram, offset signal
         @rtype: Tuple (np.array, np.array. int)
         """
-        from ta_mov_average import TAMovAverage, MovAverageType
+        from ta.ta_mov_average import TAMovAverage, MovAverageType
 
         ema_12 = TAMovAverage.build(_ta_ticker, MovAverageType.exponential, 12, )
         ema_26 = TAMovAverage.build(_ta_ticker, MovAverageType.exponential, 26)

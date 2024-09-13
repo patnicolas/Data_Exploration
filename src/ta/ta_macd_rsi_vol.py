@@ -3,9 +3,9 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from typing import AnyStr, NoReturn, Self
 import numpy as np
-from ta_macd import TAMacd
-from ta_ticker import TATicker
-from ta_rsi import TARsi
+from ta.ta_macd import TAMacd
+from ta.ta_ticker import TATicker
+from ta.ta_rsi import TARsi
 
 
 class TAMacdRsiVol(TAMacd):
@@ -75,7 +75,7 @@ class TAMacdRsiVol(TAMacd):
         @return: Newly annotated data point if any, None otherwise
         @rtype: Numpy array
         """
-        from ta_scatter import TAScatter
+        from ta.ta_scatter import TAScatter
 
         _data = [
             {'label': 'MACD Histogram', 'values': self.histogram},
@@ -91,7 +91,6 @@ class TAMacdRsiVol(TAMacd):
 if __name__ == '__main__':
     import yfinance as yf
     from ta_market_forecast import TAMarketForecast
-    from ta_macd_vol_price import TAMacdVolPrice
     from ta_mfi import TAMfi
 
     data = yf.download('MO', start='2020-01-01', end='2024-09-01')

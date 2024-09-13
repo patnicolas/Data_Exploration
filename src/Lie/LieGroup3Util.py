@@ -1,14 +1,13 @@
 __author__ = "Patrick Nicolas"
 __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
-
 import geomstats.backend as gs
 from geomstats.geometry.special_orthogonal import SpecialOrthogonal
 from geomstats.geometry.special_euclidean import SpecialEuclidean
 
 import numpy as np
 from typing import List, Self, AnyStr, Tuple
-from geometricexception import GeometricException
+from manifolds.geometricexception import GeometricException
 
 
 class LieGroup3Util(object):
@@ -31,6 +30,9 @@ class LieGroup3Util(object):
     def __str__(self) -> AnyStr:
         return f'\nTangent vector:\n{str(self.tangent_vec)}\nLie group point:\n{str(self.group_point)}'
 
+    def __eq__(self, _lie_group_3_util: Self) -> bool:
+        return self.group_point == _lie_group_3_util.group_point
+
     def lie_algebra(self) -> np.array:
         return self.lie_group.log(self.group_point)
 
@@ -44,15 +46,23 @@ class LieGroup3Util(object):
 
 
 if __name__ == '__main__':
+    import random
     so3_tangent_vec = [0.4, 0.3, 0.8, 0.2, 0.4, 0.1, 0.1, 0.2, 0.6]
     so3_shape = (3, 3)
-    lie_group_3_util = LieGroup3Util.build(so3_tangent_vec, so3_shape)
-    print(str(lie_group_3_util))
+    so3_group = LieGroup3Util.build(so3_tangent_vec, so3_shape)
+    print(str(so3_group))
 
-    lie_algebra = lie_group_3_util.lie_algebra()
+    lie_algebra = so3_group.lie_algebra()
     assert lie_algebra.size == len(so3_tangent_vec)
     print(f'Lie algebra:\n{lie_algebra}')
 
+    so3_inv_group = so3_group.inverse()
+    print(f'Inverted SO3:{so3_inv_group}')
+
+    so3_tangent_vec2 = [x*random.random() for x in so3_tangent_vec]
+    so3_group2 = LieGroup3Util.build(so3_tangent_vec2, so3_shape)
+    so3_group_product = so3_group.product(so3_group2)
+    print(f'SO3 Product:{so3_group_product}')
 
 
     """

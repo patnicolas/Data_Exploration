@@ -1,10 +1,10 @@
 __author__ = "Patrick Nicolas"
 __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
-from ta_study import TAStudy
 from typing import AnyStr, Self
 import numpy as np
-from ta_ticker import TATicker
+from ta.ta_ticker import TATicker
+from ta.ta_study import TAStudy
 
 """
 Implementation Relative Strength Index (RSI)

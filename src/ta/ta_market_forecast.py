@@ -3,8 +3,8 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
 from typing import AnyStr, NoReturn, Self, List
 import numpy as np
-from ta_study import TAStudy
-from ta_ticker import TATicker
+from ta.ta_study import TAStudy
+from ta.ta_ticker import TATicker
 
 
 class TAMarketForecast(TAStudy):
@@ -33,7 +33,7 @@ class TAMarketForecast(TAStudy):
         @type time_frames: The 3 time frames for the Market forecast moving average
         @rtype: List[int]
         """
-        from ta_mov_average import TAMovAverage, MovAverageType
+        from ta.ta_mov_average import TAMovAverage, MovAverageType
 
         assert len(time_frames) == 3, f'Market forecast has {len(time_frames)} time frames It should be 3'
         assert time_frames[0] < time_frames[1] < time_frames[2], \
@@ -59,7 +59,7 @@ class TAMarketForecast(TAStudy):
         @return: Newly annotated data point if any, None otherwise
         @rtype: Numpy array
         """
-        from ta_scatter import TAScatter
+        from ta.ta_scatter import TAScatter
 
         annotated_data = [] if _annotated_data is None else _annotated_data
         if self.normalize:
@@ -94,15 +94,5 @@ class TAMarketForecast(TAStudy):
         low_intermediate_idx = np.where(self.intermediate < 20.0)
         shared_indices = np.intersect1d(np.intersect1d(low_momentum_idx, low_near_term_idx), low_intermediate_idx)
         if len(shared_indices) == 0:
-            print('No reversal points')
+            print('No annotation point have been found')
         return shared_indices
-
-
-if __name__ == '__main__':
-    import yfinance as yf
-    from ta_ticker import TATicker
-
-    data = yf.download('MO', start='2020-01-01', end='2024-09-01')
-    ta_ticker = TATicker.build('WBA', data)
-    ta_market_forecast = TAMarketForecast.build(ta_ticker)
-    ta_market_forecast.scatter(normalize=True)
