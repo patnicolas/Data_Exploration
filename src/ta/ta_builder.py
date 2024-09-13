@@ -4,8 +4,12 @@ __copyright__ = "Copyright 2023, 2024  All rights reserved."
 from typing import NoReturn, AnyStr, Self
 from ta.ta_ticker import TATicker
 
+"""
+Sequence of predefined technical analysis studies
 
-class TAAnalysis(object):
+"""
+
+class TABuilder(object):
     def __init__(self, _ta_ticker: TATicker) -> None:
         self.ta_ticker = _ta_ticker
 
@@ -18,7 +22,7 @@ class TAAnalysis(object):
         @param end_date: End date for ticker data (High, Low, close price, Volume)
         @type end_date: str
         @return: Instance of TA analysis
-        @rtype: TAAnalysis
+        @rtype: TABuilder
         """
         import yfinance as yf
 
@@ -60,5 +64,5 @@ if __name__ == '__main__':
     ticker_symbol = 'WBA'
     data = yf.download(ticker_symbol, start='2020-01-01', end='2024-09-01')
     ta_ticker = TATicker.build(ticker_symbol, data)
-    ta_analysis = TAAnalysis(ta_ticker)
+    ta_analysis = TABuilder(ta_ticker)
     ta_analysis.scatter()
