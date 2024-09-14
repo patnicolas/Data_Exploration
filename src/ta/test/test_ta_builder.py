@@ -3,8 +3,8 @@ import unittest
 from ta.ta_ticker import TATicker
 from ta.ta_builder import TABuilder
 
-class TABuilderTest(unittest.TestCase):
 
+class TABuilderTest(unittest.TestCase):
     def test_init(self):
         import yfinance as yf
         ticker_symbol = 'MO'
