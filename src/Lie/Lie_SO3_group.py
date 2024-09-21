@@ -9,57 +9,132 @@ import numpy as np
 from typing import List, Self, AnyStr, Tuple, NoReturn
 from dataclasses import dataclass
 
+
+"""
+    Wrapper for Point or Matrix on SO3 manifold that leverages the Geomstats library.
+    @param group_point  Point (3 x 3 matrix) on SO3 group
+    @param base_point  Base point (3 coordinate) on SO3 group with 3x3 identity = as default
+    @param descriptor Description of the point
+"""
+
 @dataclass
 class SO3Point:
-    group_point: np.array
+    group_element: np.array
     base_point: np.array
     descriptor: AnyStr
 
 
+"""
+    Wrapper for the most common operations on SO3 groups using Geomstats library
+    - inverse: Compute the inverse 3D rotation matrix
+    - product: Implement the composition (multiplication) of two 3D rotation matrix
+    - Projection: 
+"""
 
 
 class LieSO3Group(object):
-    lie_group =  SpecialOrthogonal(n=3, point_type='vector', equip=False)
+    dim = 3
+    # Lie group as defined in Geomstats library
+    lie_group = SpecialOrthogonal(n=dim, point_type='vector', equip=False)
+    identity = gs.eye(dim)
 
-    # Exponentiates a left-invariant vector field from a base point.
-    def __init__(self, tgt_vector: np.array, base_point: np.array = None) -> None:
+    def __init__(self, tgt_vector: np.array, base_point: np.array = identity) -> None:
+        """
+        Constructor for the wrapper for key operations on SO3 Special Orthogonal Lie manifold
+        @param tgt_vector: Tangent vector as a 3 x 3 Numpy matrix
+        @type tgt_vector: Numpy array
+        @param base_point: Base point vector on the manifold (Identity [0, 0, 0] if not defined)
+        @type base_point: Numpy array
+        """
         assert tgt_vector.size == 9, f'Rotation matrix size {tgt_vector.size} should be 9'
+
         self.tangent_vec = gs.array(tgt_vector)
+        # Exp. a left-invariant vector field from a base point
+        self.group_element = LieSO3Group.lie_group.exp(self.tangent_vec, base_point)
         self.base_point = base_point
-        self.group_point = LieSO3Group.lie_group.exp(self.tangent_vec, base_point)
 
     @classmethod
-    def build(cls, tgt_vector: List[float], base_point: List[float] = (0.0, 0.0, 0.0)) -> Self:
-        np_input = np.reshape(tgt_vector, (3, 3))
-        return cls(tgt_vector=np_input, base_point=np.array(base_point))
+    def build(cls, tgt_vector: List[float], base_point: List[float] = None) -> Self:
+        """
+        Alternative constructor for the operations on SO3 Lie Manifold
+        @param tgt_vector: Tangent vector (Matrix)
+        @type tgt_vector: List[float] (dim 3 x 3 = 9)
+        @param base_point: Base point on the SO3 manifold
+        @type base_point: List[float] (dim 3)
+        @return: Instance of LieSO3Group
+        @rtype: LieSO3Group
+        """
+        assert base_point is None or len(base_point) == 9, \
+            f'Dimension of base point, {len(base_point)} should be 9'
+
+        np_tgt_vector = np.reshape(tgt_vector, (3, 3))
+        np_point = np.reshape(base_point, (3, 3)) if base_point is not None else LieSO3Group.identity
+        return cls(tgt_vector=np_tgt_vector, base_point=np_point)
 
     def __str__(self) -> AnyStr:
-        return f'\nTangent vector:\n{str(self.tangent_vec)}\nLie group point:\n{str(self.group_point)}'
+        return f'\nTangent vector:\n{str(self.tangent_vec)}\nLie group point:\n{str(self.group_element)}'
 
     def __eq__(self, _lie_group_3_util: Self) -> bool:
-        return self.group_point == _lie_group_3_util.group_point
+        return self.group_element == _lie_group_3_util.group_point
 
     def lie_algebra(self) -> np.array:
-        return LieSO3Group.lie_group.log(self.group_point)
+        """
+        Define the Algebra (tangent space) for a matrix and base point in SO3 group using the log
+        (inverse exponentiation) method defined in Geomstats
+        @return: Rotation matrix on tangent space
+        @rtype: Numpy array
+        """
+        return LieSO3Group.lie_group.log(self.group_element, self.base_point)
 
-    def product(self, lie_group_so3: Self) -> Self:
-        composed_group_point = LieSO3Group.lie_group.compose(self.group_point, lie_group_so3.group_point)
+    def product(self, lie_so3_group: Self) -> Self:
+        """
+        Define the product this LieGroup point or element with another Lie group point using Geomstats compose method
+        @param lie_so3_group Another Lie group
+        @type LieSO3Group
+        @return: Instance of LieSO3Group
+        @rtype: LieSO3Group
+        """
+        composed_group_point = LieSO3Group.lie_group.compose(self.group_element, lie_so3_group.group_element)
         return LieSO3Group(composed_group_point)
 
     def inverse(self) -> Self:
-        inverse_group_point = LieSO3Group.lie_group.inverse(self.group_point)
+        """
+        Compute the inverse of this LieGroup element using Geomstats 'inverse' method
+        @return: Instance of LieSO3Group
+        @rtype: LieSO3Group
+        """
+        inverse_group_point = LieSO3Group.lie_group.inverse(self.group_element)
         return LieSO3Group(inverse_group_point)
 
     def projection(self) -> Self:
-        projected = LieSO3Group.lie_group.projection(self.group_point)
+        """
+        Compute the projection of this LieGroup element using Geomstats 'project' method
+        @return: Instance of LieSO3Group
+        @rtype: LieSO3Group
+        """
+        projected = LieSO3Group.lie_group.projection(self.group_element)
         return LieSO3Group(projected)
 
-    def visualize(self, title: AnyStr) -> NoReturn:
-        so3_point = SO3Point(self.group_point, self.base_point, title)
-        LieSO3Group.visualize_all([so3_point])
+    def bracket(self,  _tgt_vector: List[float]) -> np.array:
+        """
+        Compute the bracket [X, Y] = X.Y - Y.X of two tangent vectors
+        @param _tgt_vector: Second tangent vector
+        @type _tgt_vector: List of 3x3 float values
+        @return: Value of the bracket
+        @rtype: Numpy array
+        """
+        assert len(_tgt_vector) == 9, f'Rotation matrix size {len(_tgt_vector)} should be 9'
+
+        np_tgt_vector = np.reshape(_tgt_vector, (3, 3))
+        tangent_vec = gs.array(np_tgt_vector)
+        return LieSO3Group.lie_group.lie_bracket(self.group_element, tangent_vec)
+
+    def visualize(self, title: AnyStr, notation_indices: int) -> NoReturn:
+        so3_point = SO3Point(self.group_element, self.base_point, title)
+        LieSO3Group.visualize_all([so3_point], notation_indices)
 
     @staticmethod
-    def visualize_all(so3_points: List[SO3Point]) -> NoReturn:
+    def visualize_all(so3_points: List[SO3Point], notation: int) -> NoReturn:
         import matplotlib.pyplot as plt
 
         fig = plt.figure(figsize=(12, 12))
@@ -68,22 +143,25 @@ class LieSO3Group(object):
             LieSO3Group.__visualize_one(so3_points[0], ax)
         else:
             ax1 = fig.add_subplot(121, projection="3d")
-            LieSO3Group.__visualize_one(so3_points[0], ax1)
+            is_notation = notation == 1 or notation == 3
+            LieSO3Group.__visualize_one(so3_points[0], ax1, is_notation)
             ax2 = fig.add_subplot(122, projection="3d")
-            LieSO3Group.__visualize_one(so3_points[1], ax2)
+            is_notation = notation == 2 or notation == 3
+            LieSO3Group.__visualize_one(so3_points[1], ax2, is_notation)
 
         plt.legend()
         plt.tight_layout()
         plt.show()
 
+    """ ---------------------------  Private helper methods --------------------  """
     @staticmethod
-    def __visualize_one(so3_point: SO3Point, ax: Axes3D) -> NoReturn:
+    def __visualize_one(so3_point: SO3Point, ax: Axes3D, show_base_point: bool = True) -> NoReturn:
         import geomstats.visualization as visualization
 
-        ax.text(x=-0.3, y=-0.4, z=-0.1, s=str(so3_point.base_point), fontdict={'size': 14})
+        if show_base_point:
+            ax.text(x=-1.3, y=-0.7, z=-0.5, s='Base point', fontdict={'size': 14})
 
-        # cmap: cool, copper
-        visualization.plot(so3_point.group_point, ax=ax, space="SO3_GROUP")
+        visualization.plot(so3_point.group_element, ax=ax, space="SO3_GROUP")
         ax.set_title(so3_point.descriptor, fontsize=15)
         LieSO3Group.__set_axes(ax)
 
@@ -103,29 +181,6 @@ class LieSO3Group(object):
             tick.set_fontsize(tick_size)
 
 
-
-if __name__ == '__main__':
-    import random
-    so3_tangent_vec = [0.4, 0.3, 0.8, 0.2, 0.4, 0.1, 0.1, 0.2, 0.6]
-    so3_tangent_veca = [0.0, 0.1, 0.0, 0.6, 0.4, 0.6, 0.9, 0.2, 0.1]
-    so3_shape = (3, 3)
-    so3_group = LieSO3Group.build(so3_tangent_vec, so3_shape)
-    so3_group_a = LieSO3Group.build(so3_tangent_veca, so3_shape)
-    LieSO3Group.visualize_all([so3_group, so3_group_a])
-    print(str(so3_group))
-    so3_group.visualize()
-
-    lie_algebra = so3_group.lie_algebra()
-    assert lie_algebra.size == len(so3_tangent_vec)
-    print(f'Lie algebra:\n{lie_algebra}')
-
-    so3_inv_group = so3_group.inverse()
-    print(f'Inverted SO3:{so3_inv_group}')
-
-    so3_tangent_vec2 = [x*random.random() for x in so3_tangent_vec]
-    so3_group2 = LieSO3Group.build(so3_tangent_vec2, so3_shape)
-    so3_group_product = so3_group.product(so3_group2)
-    print(f'SO3 Product:{so3_group_product}')
 
 
 
