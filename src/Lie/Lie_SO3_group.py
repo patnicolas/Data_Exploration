@@ -46,12 +46,18 @@ class LieSO3Group(object):
         @param base_point: Base point vector on the manifold (Identity [0, 0, 0] if not defined)
         @type base_point: Numpy array
         """
-        assert tgt_vector.size == 9, f'Rotation matrix size {tgt_vector.size} should be 9'
+        assert tgt_vector.size == 9, f'Tangent vector size {tgt_vector.size} should be 9'
+        assert base_point.size == 9, f'Base point size {tgt_vector.size} should be 9'
 
         self.tangent_vec = gs.array(tgt_vector)
         # Exp. a left-invariant vector field from a base point
         self.group_element = LieSO3Group.lie_group.exp(self.tangent_vec, base_point)
         self.base_point = base_point
+
+    def validate(self) -> np.array:
+        det = np.dot(self.group_element, self.group_element.T)
+        diff = np.abs(det - LieSO3Group.identity)
+        return diff
 
     @classmethod
     def build(cls, tgt_vector: List[float], base_point: List[float] = None) -> Self:
@@ -126,29 +132,46 @@ class LieSO3Group(object):
         assert len(_tgt_vector) == 9, f'Rotation matrix size {len(_tgt_vector)} should be 9'
 
         np_tgt_vector = np.reshape(_tgt_vector, (3, 3))
-        tangent_vec = gs.array(np_tgt_vector)
-        return LieSO3Group.lie_group.lie_bracket(self.group_element, tangent_vec)
+        return np.dot(self.tangent_vec, np_tgt_vector) - np.dot(np_tgt_vector, self.tangent_vec)
 
-    def visualize(self, title: AnyStr, notation_indices: int) -> NoReturn:
+    def visualize(self, title: AnyStr, notation_index: int = 0) -> NoReturn:
+        """
+        Visualize this element on SO3 Lie group. The element is defined through the exponential map
+        of the tangent vector + base point  (if not identity)
+        @param title: Title for the plot
+        @type title: str
+        @param notation_index: Indices to label the base point on the plot
+        @type notation_index: int
+        """
         so3_point = SO3Point(self.group_element, self.base_point, title)
-        LieSO3Group.visualize_all([so3_point], notation_indices)
+        LieSO3Group.visualize_all([so3_point], notation_index)
 
     @staticmethod
-    def visualize_all(so3_points: List[SO3Point], notation: int) -> NoReturn:
+    def visualize_all(so3_points: List[SO3Point], notation_index: int) -> NoReturn:
+        """
+        Visualize (plot) multiple SO3 points
+        @param so3_points: List of SO3 points
+        @type so3_points: List[SO3Point]
+        @param notation_index: Index used to add notation for base point {1 first plot, 2 second plot, 3 all plot)
+        @type notation_index: int
+        """
         import matplotlib.pyplot as plt
 
         fig = plt.figure(figsize=(12, 12))
-        if len(so3_points) == 1:
-            ax = fig.add_subplot(111, projection="3d")
-            LieSO3Group.__visualize_one(so3_points[0], ax)
-        else:
-            ax1 = fig.add_subplot(121, projection="3d")
-            is_notation = notation == 1 or notation == 3
-            LieSO3Group.__visualize_one(so3_points[0], ax1, is_notation)
-            ax2 = fig.add_subplot(122, projection="3d")
-            is_notation = notation == 2 or notation == 3
-            LieSO3Group.__visualize_one(so3_points[1], ax2, is_notation)
 
+        match len(so3_points):
+            case 1:       # If we display on one SO3 point
+                ax = fig.add_subplot(111, projection="3d")
+                LieSO3Group.__visualize_one(so3_points[0], ax, notation_index > 0)
+            case 2:       # Visualize two data points
+                ax1 = fig.add_subplot(121, projection="3d")
+                is_notation = notation_index == 1 or notation_index == 3
+                LieSO3Group.__visualize_one(so3_points[0], ax1, is_notation)
+                ax2 = fig.add_subplot(122, projection="3d")
+                is_notation = notation_index == 2 or notation_index == 3
+                LieSO3Group.__visualize_one(so3_points[1], ax2, is_notation)
+            case _:
+                raise Exception(f'Number of SO3 point to display {len(so3_points)} should be {1, 2}')
         plt.legend()
         plt.tight_layout()
         plt.show()
