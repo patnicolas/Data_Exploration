@@ -17,6 +17,7 @@ from dataclasses import dataclass
     @param descriptor Description of the point
 """
 
+
 @dataclass
 class SO3Point:
     group_element: np.array
