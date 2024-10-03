@@ -28,13 +28,14 @@ class LieSE3Group(object):
     dim = 3
     # Lie group as defined in Geomstats library
     lie_group = SpecialEuclidean(n=dim, point_type='matrix', epsilon=0.15, equip=False)
-    identity = gs.eye(dim)
+    extend_rotation = np.array([[0.0, 0.0, 0.0]])
+    extend_translation = np.array([[1.0]])
 
     def __init__(self, se3_element: np.array) -> None:
         """
         Constructor for the wrapper for key operations on SE3 Special Euclidean Lie manifold. A point on
         SE3 manifold is computed by composing the rotation and translation matrices
-        @param se3_element: 3 x 3 element in tangent space
+        @param se3_element: 4 x 4 element in tangent space
         @type se3_element: Numpy array
         """
         self.se3_element = se3_element
@@ -50,12 +51,14 @@ class LieSE3Group(object):
         @type trans_matrix: Numpy array
         """
         assert rot_matrix.size == 9, f'Rotation matrix size {rot_matrix.size} should be 9'
-        assert trans_matrix.size == 9, f'Translation matrix size {trans_matrix.size} should be 9'
+        assert trans_matrix.size == 3, f'Translation matrix size {trans_matrix.size} should be 3'
 
         rotation_matrix = gs.array(rot_matrix)
         translation_matrix = gs.array(trans_matrix)
-        se3_element = LieSE3Group.lie_group.compose(rotation_matrix,  translation_matrix)
+        se3_element = LieSE3Group.__build_se3_matrix(rotation_matrix, translation_matrix)
         return cls(se3_element)
+
+
 
     @classmethod
     def build_from_vec(cls, rot_matrix: List[float], trans_vector: List[float]) -> Self:
@@ -72,7 +75,7 @@ class LieSE3Group(object):
         assert len(trans_vector) == 3, f'Length of translation vector {len(trans_vector)} should be 3'
 
         np_rotation_matrix = np.reshape(rot_matrix, (3, 3))
-        np_translation_matrix = LieSE3Group.__convert_translation_to_matrix(trans_vector)
+        np_translation_matrix = np.reshape(trans_vector, (1, 3))
         return LieSE3Group.build_from_numpy(np_rotation_matrix, np_translation_matrix)
 
     def inverse(self) -> Self:
@@ -84,37 +87,37 @@ class LieSE3Group(object):
         inverse_group_point = LieSE3Group.lie_group.inverse(self.group_element)
         return LieSE3Group(inverse_group_point)
 
+    def product(self, lie_se3_group: Self) -> Self:
+        """
+        Define the product this LieGroup point or element with another Lie group point using Geomstats compose method
+        @param lie_se3_group Another Lie group
+        @type LieSE3Group
+        @return: Instance of LieSE3Group
+        @rtype: LieSE3Group
+        """
+        composed_group_point = LieSE3Group.lie_group.compose(self.group_element, lie_se3_group.group_element)
+        return LieSE3Group(composed_group_point)
+
     def __str__(self) -> AnyStr:
         return f'\nSE3 element:\n{str(self.se3_element)}\nLie group point:\n{str(self.group_element)}'
 
-
-    def visualize_all(self, rot_matrix: List[float] = 0.0, trans_vec: List[float] = 0.0) -> NoReturn:
+    def visualize_tangent_space(self, rot_matrix: List[float], trans_vec: List[float]) -> NoReturn:
         import matplotlib.pyplot as plt
 
-        if rot_matrix != 0.0 and trans_vec != 0.0:
-            se3_point = self.__get_se3_point(rot_matrix, trans_vec)
-            fig = plt.figure(figsize=(12, 12))
-            ax1 = fig.add_subplot(121, projection="3d")
-            title = f'Rotation matrix:\n{np.round(se3_point.rotation_matrix, 2)}'
-            LieSE3Group.__visualize_element(se3_point.rotation_matrix, title, ax1)
-
-            ax2 = fig.add_subplot(122, projection="3d")
-            title = f'Translation matrix\n{np.round(se3_point.translation_matrix, 2)}'
-            LieSE3Group.__visualize_element(se3_point.translation_matrix, title, ax2)
-
-            plt.legend()
-            plt.tight_layout()
-            plt.show()
-        else:
-            se3_point = self.__get_se3_point()
-
+        se3_point = self.__get_se3_point(rot_matrix, trans_vec)
         fig = plt.figure(figsize=(12, 12))
-        ax3 = fig.add_subplot(111, projection="3d")
-        title = f'SE3 element\n{np.round(se3_point.group_element, 2)}'
-        LieSE3Group.__visualize_element(se3_point.group_element, title, ax3)
+        ax1 = fig.add_subplot(121, projection="3d")
+        title = f'Rotation matrix:\n{np.round(se3_point.rotation_matrix, 2)}'
+        LieSE3Group.__visualize_element(se3_point.rotation_matrix, title, ax1)
+
+        ax2 = fig.add_subplot(122, projection="3d")
+        title = f'Translation matrix\n{np.round(se3_point.translation_matrix, 2)}'
+        LieSE3Group.__visualize_element(se3_point.translation_matrix, title, ax2)
+
         plt.legend()
         plt.tight_layout()
         plt.show()
+
 
     def visualize(self, other: np.array, label: AnyStr) -> NoReturn:
         import matplotlib.pyplot as plt
@@ -125,7 +128,7 @@ class LieSE3Group(object):
         LieSE3Group.__visualize_element(self.group_element, title, ax1)
 
         ax2 = fig.add_subplot(122, projection="3d")
-        title = f'{label}:\n{np.round(other, 2)}'
+        title = f'{label}:\n{np.round(other, 3)}'
         LieSE3Group.__visualize_element(other, title, ax2)
 
         plt.legend()
@@ -136,6 +139,12 @@ class LieSE3Group(object):
     """ ---------------------   Private Helper Methods --------------------------  """
 
     @staticmethod
+    def __build_se3_matrix(rot_matrix: np.array, trans_matrix: np.array) -> np.array:
+        extended_rot = np.concatenate([rot_matrix, LieSE3Group.extend_rotation], axis=0)
+        extended_trans = np.concatenate([trans_matrix.T, LieSE3Group.extend_translation])
+        return np.concatenate([extended_rot, extended_trans], axis=1)
+
+    @staticmethod
     def __visualize_element(se3_element: np.array, descriptor: AnyStr, ax: Axes3D) -> NoReturn:
         import geomstats.visualization as visualization
 
@@ -144,10 +153,10 @@ class LieSE3Group(object):
         LieSE3Group.__set_axes(ax)
 
     def __get_se3_point(self,
-                        rotation_matrix: List[float] = 0.0,
-                        translation_vector: List[float] = 0.0) -> SE3Point:
+                        rotation_matrix: List[float],
+                        translation_vector: List[float]) -> SE3Point:
         np_rot_matrix = np.reshape(rotation_matrix, (3, 3))
-        np_trans_matrix = LieSE3Group.__convert_translation_to_matrix(translation_vector)
+        np_trans_matrix = np.reshape(translation_vector, (1, 3))
         return SE3Point(self.group_element, np_rot_matrix, np_trans_matrix)
 
     @staticmethod
@@ -159,12 +168,12 @@ class LieSE3Group(object):
 
     @staticmethod
     def __set_axes(ax: Axes3D) -> NoReturn:
-        label_size = 12
+        label_size = 11
         ax.set_xlabel('X values', fontsize=label_size)
         ax.set_ylabel('Y values', fontsize=label_size)
         ax.set_zlabel('Z values', fontsize=label_size)
 
-        tick_size = 11
+        tick_size = 9
         for tick in ax.get_xticklabels():
             tick.set_fontsize(tick_size)
         for tick in ax.get_yticklabels():
