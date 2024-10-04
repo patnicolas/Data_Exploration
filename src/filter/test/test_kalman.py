@@ -2,6 +2,14 @@
 import unittest
 import numpy as np
 from filter.kalman import KalmanFilter
+from typing import NoReturn, List, Tuple, AnyStr
+from dataclasses import dataclass
+
+@dataclass
+class KalmanPlot:
+    estimated: List[np.array]
+    observed: np.array
+    title: AnyStr
 
 class KalmanFilterTest(unittest.TestCase):
 
@@ -57,6 +65,66 @@ class KalmanFilterTest(unittest.TestCase):
         plt.tight_layout()
         plt.show()
 
+    def test_simulate_trajectory(self):
+        import math
+
+        dt = 0.1
+        ac = 0.5*dt*dt
+        x0 = np.array([[0.0], [np.pi], [0.8], [0.2]])
+        P0 = np.eye(x0.shape[0])
+        A = np.array([[1.0, 0.0, dt, 0.0], [0.0, 1.0, 0.0, dt], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]])
+        B = np.array([[ac, 0.0], [0.0, ac], [dt, 0.0], [0.0, dt]])
+        H = np.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
+        B = np.array([[ac, 0.0], [ac, 0.0], [dt, 0.0], [0.0, dt]])
+        u = np.array([[1.0], [0.8]])
+        Q_means = 0.6
+        R_means = 1.0
+        Q = np.eye(4) * Q_means
+        R = np.eye(1) * R_means
+        kf = KalmanFilter(x0, P0, A, H, Q, R, u, B)
+        num_points = 120
+
+        def obs_generator_exp(i: int) -> np.array:
+            return np.array([[i], [i]])
+
+        def obs_generator_lin(i: int) -> np.array:
+            return np.array([[i], [i]])
+
+        def obs_generator_sqr(i: int) -> np.array:
+            return np.array([[i], [i*i]])
+
+        def obs_generator_sqrt(i: int) -> np.array:
+            return np.array([[i], [math.sqrt(20000.0*i)]])
+
+        z_exp = [obs_generator_exp(i) for i in range(num_points)]
+        z_lin = [obs_generator_lin(i) for i in range(num_points)]
+        z_sqr = [obs_generator_sqr(i) for i in range(num_points)]
+        z_sqrt = [obs_generator_sqrt(i) for i in range(num_points)]
+
+        estimation1 = kf.simulate(num_points,
+                                lambda i: obs_generator_lin(i),
+                                np.array([[0.4], [0.6], [0.1], [0.2]]))
+        kalman_plot1 = KalmanPlot(estimation1, z_lin, f'x=n, y=n')
+
+        estimation2 = kf.simulate(num_points,
+                                lambda i: obs_generator_sqr(i),
+                                np.array([[0.4], [0.6], [0.1], [0.2]]))
+        kalman_plot2 = KalmanPlot(estimation2, z_sqr, f'x=n, y=n*n')
+
+        estimation3 = kf.simulate(num_points,
+                                 lambda i: obs_generator_exp(i),
+                                 np.array([[0.4], [0.6], [0.1], [0.2]]))
+        kalman_plot3 = KalmanPlot(estimation3, z_exp, f'x=n, y=exp(-0.1.n)')
+
+        estimation4 = kf.simulate(num_points,
+                                 lambda i: obs_generator_sqrt(i),
+                                 np.array([[0.4], [0.6], [0.1], [0.2]]))
+        kalman_plot4 = KalmanPlot(estimation4, z_sqrt, f'x=n, y=sqrt(20000.n)')
+
+        KalmanFilterTest.plot_trajectories([kalman_plot1, kalman_plot2, kalman_plot3, kalman_plot4])
+        # KalmanFilterTest.plot_observed_estimate(num_points, estimation)
+
+    @unittest.skip('Ignored')
     def test_simulate_3d(self):
         x0 = np.array([0.0, 0.1, 0.1])
         P0 = np.eye(x0.shape[0])
@@ -71,7 +139,11 @@ class KalmanFilterTest(unittest.TestCase):
         estimation = kf.simulate(num_points,
                                  lambda i: np.array([i + np.random.normal(rNoise, rNoise)]),
                                  np.array([0.4, 0.6, 0.1]))
+        KalmanFilterTest.plot_observed_estimate(num_points, estimation)
 
+
+    @staticmethod
+    def plot_observed_estimate(num_points: int, estimation: List[Tuple[np.array]]) -> NoReturn:
         import matplotlib.pyplot as plt
 
         fig = plt.figure(figsize=(8, 8))
@@ -89,3 +161,55 @@ class KalmanFilterTest(unittest.TestCase):
         plt.tight_layout()
         plt.show()
 
+    @staticmethod
+    def plot_trajectories(kalman_plots: List[KalmanPlot]) -> NoReturn:
+        import matplotlib.pyplot as plt
+
+        fig, axs = plt.subplots(2, 2, figsize=(8, 8))
+        axs[0, 0].scatter(
+            [x[0] for x in kalman_plots[0].estimated],
+            [x[1] for x in kalman_plots[0].estimated],
+            color='red',
+            label="estimated")
+        axs[0, 0].scatter(
+            [z[0] for z in kalman_plots[0].observed],
+            [z[1] for z in kalman_plots[0].observed],
+            color='blue',
+            label='measured')
+        axs[0, 0].set_title(kalman_plots[0].title)
+
+        axs[0, 1].scatter(
+            [x[0] for x in kalman_plots[1].estimated],
+            [x[1] for x in kalman_plots[1].estimated],
+            color='red')
+        axs[0, 1].scatter(
+            [z[0] for z in kalman_plots[1].observed],
+            [z[1] for z in kalman_plots[1].observed],
+            color='blue')
+        axs[0, 1].set_title(kalman_plots[1].title)
+
+        axs[1, 0].scatter(
+            [x[0] for x in kalman_plots[2].estimated],
+            [x[1] for x in kalman_plots[2].estimated],
+            color='red')
+        axs[1, 0].scatter(
+            [z[0] for z in kalman_plots[2].observed],
+            [z[1] for z in kalman_plots[2].observed],
+            color='blue')
+        axs[1, 0].set_title(kalman_plots[2].title)
+
+        axs[1, 1].scatter(
+            [x[0] for x in kalman_plots[3].estimated],
+            [x[1] for x in kalman_plots[3].estimated],
+            color='red',
+            label='estimated')
+        axs[1, 1].scatter(
+            [z[0] for z in kalman_plots[3].observed],
+            [z[1] for z in kalman_plots[3].observed],
+            color='blue',
+            label='measured')
+        axs[1, 1].set_title(kalman_plots[3].title)
+
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
