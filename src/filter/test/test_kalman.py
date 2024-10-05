@@ -82,7 +82,8 @@ class KalmanFilterTest(unittest.TestCase):
         Q = np.eye(4) * Q_means
         R = np.eye(1) * R_means
         kf = KalmanFilter(x0, P0, A, H, Q, R, u, B)
-        num_points = 120
+        num_points = 200
+
 
         def obs_generator_exp(i: int) -> np.array:
             return np.array([[i], [i]])
@@ -100,6 +101,7 @@ class KalmanFilterTest(unittest.TestCase):
         z_lin = [obs_generator_lin(i) for i in range(num_points)]
         z_sqr = [obs_generator_sqr(i) for i in range(num_points)]
         z_sqrt = [obs_generator_sqrt(i) for i in range(num_points)]
+
 
         estimation1 = kf.simulate(num_points,
                                 lambda i: obs_generator_lin(i),
@@ -121,8 +123,9 @@ class KalmanFilterTest(unittest.TestCase):
                                  np.array([[0.4], [0.6], [0.1], [0.2]]))
         kalman_plot4 = KalmanPlot(estimation4, z_sqrt, f'x=n, y=sqrt(20000.n)')
 
-        KalmanFilterTest.plot_trajectories([kalman_plot1, kalman_plot2, kalman_plot3, kalman_plot4])
-        # KalmanFilterTest.plot_observed_estimate(num_points, estimation)
+        # KalmanFilterTest.__plot_observed_estimate(num_points, kalman_plot1, kalman_plot2)
+        KalmanFilterTest.__plot_trajectories([kalman_plot1, kalman_plot2, kalman_plot3, kalman_plot4])
+
 
     @unittest.skip('Ignored')
     def test_simulate_3d(self):
@@ -139,30 +142,34 @@ class KalmanFilterTest(unittest.TestCase):
         estimation = kf.simulate(num_points,
                                  lambda i: np.array([i + np.random.normal(rNoise, rNoise)]),
                                  np.array([0.4, 0.6, 0.1]))
-        KalmanFilterTest.plot_observed_estimate(num_points, estimation)
+        KalmanFilterTest.__plot_observed_estimate(num_points, estimation)
 
 
     @staticmethod
-    def plot_observed_estimate(num_points: int, estimation: List[Tuple[np.array]]) -> NoReturn:
+    def __plot_observed_estimate(
+            num_points: int,
+            kalman_plot1: KalmanPlot,
+            kalman_plot2: KalmanPlot) -> NoReturn:
         import matplotlib.pyplot as plt
 
-        fig = plt.figure(figsize=(8, 8))
-        ax1 = fig.add_subplot(121)
+        fig, axs = plt.subplots(1, 2, figsize=(8, 6))
+
         x: np.array = np.linspace(0, num_points, num_points)
         _x = x.tolist()
-        ax1.plot(_x, [x[0] for x in estimation])
-        ax1.plot(_x, [x[1][0] for x in estimation])
+        axs[0].plot(_x, [x[0] for x in kalman_plot1.estimated])
+        axs[0].plot(_x, [x[0] for x in kalman_plot1.observed])
+        axs[0].set_title(kalman_plot1.title, fontdict={'fontsize': 15, 'fontweight': 'bold', 'family': 'serif'})
 
-        ax2 = fig.add_subplot(122)
-        # ax2.plot([x[0] for x in estimation], [x[1][1] for x in estimation])
-        ax2.plot([x[1][1] for x in estimation], [x[0] for x in estimation])
+        axs[1].plot(_x, [x[0] for x in kalman_plot2.estimated], color='red', label='estimated')
+        axs[1].plot(_x, [x[0] for x in kalman_plot2.observed], color='blue', label='observed')
+        axs[1].set_title(kalman_plot2.title, fontdict={'fontsize': 15, 'fontweight': 'bold', 'family': 'serif'})
 
         plt.legend()
         plt.tight_layout()
         plt.show()
 
     @staticmethod
-    def plot_trajectories(kalman_plots: List[KalmanPlot]) -> NoReturn:
+    def __plot_trajectories(kalman_plots: List[KalmanPlot]) -> NoReturn:
         import matplotlib.pyplot as plt
 
         fig, axs = plt.subplots(2, 2, figsize=(8, 8))
@@ -176,7 +183,7 @@ class KalmanFilterTest(unittest.TestCase):
             [z[1] for z in kalman_plots[0].observed],
             color='blue',
             label='measured')
-        axs[0, 0].set_title(kalman_plots[0].title)
+        axs[0, 0].set_title(kalman_plots[0].title, fontdict={'fontsize': 15, 'fontweight': 'bold', 'family': 'serif'})
 
         axs[0, 1].scatter(
             [x[0] for x in kalman_plots[1].estimated],
@@ -186,7 +193,7 @@ class KalmanFilterTest(unittest.TestCase):
             [z[0] for z in kalman_plots[1].observed],
             [z[1] for z in kalman_plots[1].observed],
             color='blue')
-        axs[0, 1].set_title(kalman_plots[1].title)
+        axs[0, 1].set_title(kalman_plots[1].title, fontdict={'fontsize': 15, 'fontweight': 'bold', 'family': 'serif'})
 
         axs[1, 0].scatter(
             [x[0] for x in kalman_plots[2].estimated],
@@ -196,7 +203,7 @@ class KalmanFilterTest(unittest.TestCase):
             [z[0] for z in kalman_plots[2].observed],
             [z[1] for z in kalman_plots[2].observed],
             color='blue')
-        axs[1, 0].set_title(kalman_plots[2].title)
+        axs[1, 0].set_title(kalman_plots[2].title, fontdict={'fontsize': 15, 'fontweight': 'bold', 'family': 'serif'})
 
         axs[1, 1].scatter(
             [x[0] for x in kalman_plots[3].estimated],
@@ -208,7 +215,7 @@ class KalmanFilterTest(unittest.TestCase):
             [z[1] for z in kalman_plots[3].observed],
             color='blue',
             label='measured')
-        axs[1, 1].set_title(kalman_plots[3].title)
+        axs[1, 1].set_title(kalman_plots[3].title, fontdict={'fontsize': 15, 'fontweight': 'bold', 'family': 'serif'})
 
         plt.legend()
         plt.tight_layout()
