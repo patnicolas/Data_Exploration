@@ -73,7 +73,6 @@ class KalmanFilterTest(unittest.TestCase):
         x0 = np.array([[0.0], [np.pi], [0.8], [0.2]])
         P0 = np.eye(x0.shape[0])
         A = np.array([[1.0, 0.0, dt, 0.0], [0.0, 1.0, 0.0, dt], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]])
-        B = np.array([[ac, 0.0], [0.0, ac], [dt, 0.0], [0.0, dt]])
         H = np.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
         B = np.array([[ac, 0.0], [ac, 0.0], [dt, 0.0], [0.0, dt]])
         u = np.array([[1.0], [0.8]])
@@ -84,15 +83,14 @@ class KalmanFilterTest(unittest.TestCase):
         kf = KalmanFilter(x0, P0, A, H, Q, R, u, B)
         num_points = 200
 
-
-        def obs_generator_exp(i: int) -> np.array:
-            return np.array([[i], [i]])
-
         def obs_generator_lin(i: int) -> np.array:
             return np.array([[i], [i]])
 
         def obs_generator_sqr(i: int) -> np.array:
             return np.array([[i], [i*i]])
+
+        def obs_generator_exp(i: int) -> np.array:
+            return np.array([[i], [math.exp(-i*0.1)]])
 
         def obs_generator_sqrt(i: int) -> np.array:
             return np.array([[i], [math.sqrt(20000.0*i)]])
@@ -101,7 +99,6 @@ class KalmanFilterTest(unittest.TestCase):
         z_lin = [obs_generator_lin(i) for i in range(num_points)]
         z_sqr = [obs_generator_sqr(i) for i in range(num_points)]
         z_sqrt = [obs_generator_sqrt(i) for i in range(num_points)]
-
 
         estimation1 = kf.simulate(num_points,
                                 lambda i: obs_generator_lin(i),
@@ -123,8 +120,8 @@ class KalmanFilterTest(unittest.TestCase):
                                  np.array([[0.4], [0.6], [0.1], [0.2]]))
         kalman_plot4 = KalmanPlot(estimation4, z_sqrt, f'x=n, y=sqrt(20000.n)')
 
-        # KalmanFilterTest.__plot_observed_estimate(num_points, kalman_plot1, kalman_plot2)
-        KalmanFilterTest.__plot_trajectories([kalman_plot1, kalman_plot2, kalman_plot3, kalman_plot4])
+        KalmanFilterTest.__plot_observed_estimate(num_points, kalman_plot1, kalman_plot2)
+        # KalmanFilterTest.__plot_trajectories([kalman_plot1, kalman_plot2, kalman_plot3, kalman_plot4])
 
 
     @unittest.skip('Ignored')
@@ -159,10 +156,14 @@ class KalmanFilterTest(unittest.TestCase):
         axs[0].plot(_x, [x[0] for x in kalman_plot1.estimated])
         axs[0].plot(_x, [x[0] for x in kalman_plot1.observed])
         axs[0].set_title(kalman_plot1.title, fontdict={'fontsize': 15, 'fontweight': 'bold', 'family': 'serif'})
+        axs[0].set_xlabel('X input', fontdict={'fontsize': 12, 'fontweight': 'regular', 'family': 'serif'})
+        axs[0].set_ylabel('Trajectory', fontdict={'fontsize': 12, 'fontweight': 'regular', 'family': 'serif'})
 
         axs[1].plot(_x, [x[0] for x in kalman_plot2.estimated], color='red', label='estimated')
         axs[1].plot(_x, [x[0] for x in kalman_plot2.observed], color='blue', label='observed')
         axs[1].set_title(kalman_plot2.title, fontdict={'fontsize': 15, 'fontweight': 'bold', 'family': 'serif'})
+        axs[1].set_xlabel('X input', fontdict={'fontsize': 12, 'fontweight': 'regular', 'family': 'serif'})
+        axs[1].set_ylabel('Trajectory', fontdict={'fontsize': 12, 'fontweight': 'regular', 'family': 'serif'})
 
         plt.legend()
         plt.tight_layout()
@@ -184,6 +185,8 @@ class KalmanFilterTest(unittest.TestCase):
             color='blue',
             label='measured')
         axs[0, 0].set_title(kalman_plots[0].title, fontdict={'fontsize': 15, 'fontweight': 'bold', 'family': 'serif'})
+        axs[0, 0].set_xlabel('X trajectory', fontdict={'fontsize': 12, 'fontweight': 'regular', 'family': 'serif'})
+        axs[0, 0].set_ylabel('Y trajectory', fontdict={'fontsize': 12, 'fontweight': 'regular', 'family': 'serif'})
 
         axs[0, 1].scatter(
             [x[0] for x in kalman_plots[1].estimated],
@@ -194,6 +197,8 @@ class KalmanFilterTest(unittest.TestCase):
             [z[1] for z in kalman_plots[1].observed],
             color='blue')
         axs[0, 1].set_title(kalman_plots[1].title, fontdict={'fontsize': 15, 'fontweight': 'bold', 'family': 'serif'})
+        axs[0, 1].set_xlabel('X trajectory', fontdict={'fontsize': 12, 'fontweight': 'regular', 'family': 'serif'})
+        axs[0, 1].set_ylabel('Y trajectory', fontdict={'fontsize': 12, 'fontweight': 'regular', 'family': 'serif'})
 
         axs[1, 0].scatter(
             [x[0] for x in kalman_plots[2].estimated],
@@ -204,6 +209,8 @@ class KalmanFilterTest(unittest.TestCase):
             [z[1] for z in kalman_plots[2].observed],
             color='blue')
         axs[1, 0].set_title(kalman_plots[2].title, fontdict={'fontsize': 15, 'fontweight': 'bold', 'family': 'serif'})
+        axs[1, 0].set_xlabel('X trajectory', fontdict={'fontsize': 12, 'fontweight': 'regular', 'family': 'serif'})
+        axs[1, 0].set_ylabel('Y trajectory', fontdict={'fontsize': 12, 'fontweight': 'regular', 'family': 'serif'})
 
         axs[1, 1].scatter(
             [x[0] for x in kalman_plots[3].estimated],
@@ -216,6 +223,8 @@ class KalmanFilterTest(unittest.TestCase):
             color='blue',
             label='measured')
         axs[1, 1].set_title(kalman_plots[3].title, fontdict={'fontsize': 15, 'fontweight': 'bold', 'family': 'serif'})
+        axs[1, 1].set_xlabel('X trajectory', fontdict={'fontsize': 12, 'fontweight': 'regular', 'family': 'serif'})
+        axs[1, 1].set_ylabel('Y trajectory', fontdict={'fontsize': 12, 'fontweight': 'regular', 'family': 'serif'})
 
         plt.legend()
         plt.tight_layout()
