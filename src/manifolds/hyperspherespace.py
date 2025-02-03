@@ -6,10 +6,11 @@ from geomstats.geometry.hypersphere import Hypersphere, HypersphereMetric
 from typing import NoReturn, List
 import numpy as np
 
-from manifolds.spacevisualization import VisualizationParams, SpaceVisualization
-from manifolds.geometricspace import GeometricSpace, ManifoldPoint
+from src.manifolds.spacevisualization import VisualizationParams, SpaceVisualization
+from src.manifolds.geometricspace import GeometricSpace
+from src.manifolds.manifoldpoint import ManifoldPoint
 import geomstats.backend as gs
-from manifolds.geometricexception import GeometricException
+from src.manifolds.geometricexception import GeometricException
 
 """
     Define the Hypersphere geometric space as a 2D manifold in a 3D Euclidean space.
@@ -29,9 +30,8 @@ class HypersphereSpace(GeometricSpace):
         dim = 2
         super(HypersphereSpace, self).__init__(dim, intrinsic)
         GeometricSpace.manifold_type = 'Hypersphere'
-        coordinates_type = 'intrinsic' if intrinsic else 'extrinsic'
         # 1. Instantiate the Hypersphere
-        self.space = Hypersphere(dim=self.dimension, equip=equip, default_coords_type=coordinates_type)
+        self.space = Hypersphere(dim=self.dimension, intrinsic=intrinsic, equip=equip)
         # 2. Generated the default metric
         self.hypersphere_metric = HypersphereMetric(self.space)
 

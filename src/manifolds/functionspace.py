@@ -8,8 +8,8 @@ import numpy as np
 from dataclasses import dataclass
 import geomstats.backend as gs
 from geomstats.geometry.functions import HilbertSphere, HilbertSphereMetric
-from manifoldpoint import ManifoldPoint
-from geometricexception import GeometricException
+from src.manifolds.manifoldpoint import ManifoldPoint
+from src.manifolds.geometricexception import GeometricException
 
 
 """

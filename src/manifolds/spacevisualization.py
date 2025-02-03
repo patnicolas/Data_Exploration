@@ -9,8 +9,8 @@ from typing import Tuple, NoReturn, AnyStr, List
 import numpy as np
 import geomstats.visualization as visualization
 from dataclasses import dataclass
-from manifolds.geometricspace import ManifoldPoint
-from manifolds.geometricexception import GeometricException
+from src.manifolds.manifoldpoint import ManifoldPoint
+from src.manifolds.geometricexception import GeometricException
 
 
 @dataclass

@@ -1,7 +1,7 @@
 __author__ = "Patrick Nicolas"
 __copyright__ = "Copyright 2023, 2024  All rights reserved."
 
-from manifolds.hyperspherespace import HypersphereSpace
+from src.manifolds.hyperspherespace import HypersphereSpace
 from sklearn.decomposition import PCA
 from geomstats.learning.pca import TangentPCA
 from geomstats.learning.frechet_mean import FrechetMean
