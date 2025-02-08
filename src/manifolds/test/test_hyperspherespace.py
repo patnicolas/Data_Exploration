@@ -1,7 +1,7 @@
 import unittest
-from manifolds.hyperspherespace import HypersphereSpace
-from manifolds.manifoldpoint import ManifoldPoint
-from manifolds. spacevisualization import VisualizationParams, SpaceVisualization
+from src.manifolds.hyperspherespace import HypersphereSpace
+from src.manifolds.manifoldpoint import ManifoldPoint
+from src.manifolds. spacevisualization import VisualizationParams
 
 
 class TestGeometricSpace(unittest.TestCase):
@@ -25,9 +25,7 @@ class TestGeometricSpace(unittest.TestCase):
 
     # @unittest.skip('ignore')
     def test_tangent_vector(self):
-        from manifolds.geometricspace import GeometricSpace
-
-        manifold = HypersphereSpace(True)
+        manifold = HypersphereSpace(equip=True)
         samples = manifold.sample(3)
         manifold_points = [
             ManifoldPoint(
@@ -44,8 +42,6 @@ class TestGeometricSpace(unittest.TestCase):
 
     @unittest.skip('ignore')
     def test_show_tangent_vector_geodesics(self):
-        from manifolds.geometricspace import GeometricSpace
-
         manifold = HypersphereSpace(True)
         samples = manifold.sample(2)
         manifold_points = [

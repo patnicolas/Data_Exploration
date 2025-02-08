@@ -51,7 +51,7 @@ class HyperspherePCATest(unittest.TestCase):
         components, tangent_components = HyperspherePCATest.pca_and_tangent_pca(num_samples)
         print(f'\nEuclidean PCA components:\n{components}\nTangent Space PCA components:\n{tangent_components}')
         self.assertEqual(len(tangent_components), 3)
-        
+
 
     @staticmethod
     def pca_and_tangent_pca(num_samples: int) -> (np.array, np.array):
